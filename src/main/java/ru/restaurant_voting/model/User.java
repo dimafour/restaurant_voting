@@ -52,12 +52,19 @@ public class User extends NamedEntity implements HasIdAndEmail {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Vote> votes;
 
-    public User(Integer id, String name, String email, String password, Date registered, Set<Role> roles) {
+    public User(Integer id, String name, String email, String password, Date registered, Collection<Role> roles) {
         super(id, name);
         this.email = email;
         this.password = password;
         this.registered = registered;
-        this.roles = roles;
+        setRoles(roles);
+    }
+    public User(Integer id, String name, String email, String password, Date registered, Role... roles) {
+        this(id, name, email, password, registered, Arrays.asList(roles));
+    }
+
+    public void setRoles(Collection<Role> roles) {
+        this.roles = roles.isEmpty() ? EnumSet.noneOf(Role.class) : EnumSet.copyOf(roles);
     }
 
     public boolean hasRole(Role role) {

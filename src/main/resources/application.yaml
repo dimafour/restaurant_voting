@@ -14,12 +14,9 @@ spring:
         jdbc.batch_size: 20
   datasource:
       url: jdbc:h2:mem:restaurant_voting
+    # tcp jdbc:h2:tcp://localhost:9092/mem:restaurant_voting
       username: sa
       password:
-  #  datasource:
-  #    url: jdbc:h2:mem:restaurant_voting
-  #    username: sa
-  #    password:
 
   jackson.visibility:
     field: any
@@ -30,6 +27,9 @@ spring:
   cache:
     cache-names: users
     caffeine.spec: maximumSize=5000,expireAfterAccess=60s
+  h2:
+    console:
+      enabled: true
 
 logging:
   level:
