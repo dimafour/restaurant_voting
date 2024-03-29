@@ -21,7 +21,7 @@ public class Meal extends NamedEntity {
 
     @Column(name = "price", nullable = false)
     @NotBlank
-    @Range(min = 1, max = 500000)
+    @Range(min = 1, max = 5000_00)
     private int price; // in cents
 
     @Column(name = "meal_date", nullable = false)

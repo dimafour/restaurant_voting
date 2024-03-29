@@ -59,8 +59,9 @@ public class User extends NamedEntity implements HasIdAndEmail {
         this.registered = registered;
         setRoles(roles);
     }
-    public User(Integer id, String name, String email, String password, Date registered, Role... roles) {
-        this(id, name, email, password, registered, Arrays.asList(roles));
+
+    public User(Integer id, String name, String email, String password, Role... roles) {
+        this(id, name, email, password, new Date(), Arrays.asList(roles));
     }
 
     public void setRoles(Collection<Role> roles) {
