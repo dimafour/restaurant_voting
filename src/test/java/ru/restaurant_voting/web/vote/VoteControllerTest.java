@@ -4,18 +4,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.restaurant_voting.AbstractControllerTest;
 import ru.restaurant_voting.repository.VoteRepository;
 
+import java.lang.reflect.Field;
+import java.time.LocalTime;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static ru.restaurant_voting.web.restaurant.RestaurantTestData.restaurant1;
 import static ru.restaurant_voting.web.user.UserTestData.*;
 import static ru.restaurant_voting.web.vote.VoteController.REST_URL;
+import static ru.restaurant_voting.web.vote.VoteController.TOO_LATE;
 import static ru.restaurant_voting.web.vote.VoteTestData.vote1;
 import static ru.restaurant_voting.web.vote.VoteTestData.vote2;
 
@@ -45,5 +49,63 @@ class VoteControllerTest extends AbstractControllerTest {
         Optional<Integer> voteFromRep = voteRepository.getTodayVote(user2.id());
         assertTrue(voteFromRep.isPresent());
         assertEquals(voteFromRep.get(), restaurantId);
+    }
+
+    @Test
+    @WithUserDetails(value = USER1_MAIL)
+    void update() throws Exception {
+        changeTime(LocalTime.MAX);
+        int restaurantId = restaurant1.id();
+        perform(MockMvcRequestBuilders.put(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .param("restaurantId", String.valueOf(restaurantId)))
+                .andExpect(status().isNoContent());
+        Optional<Integer> voteFromRep = voteRepository.getTodayVote(user1.id());
+        assertTrue(voteFromRep.isPresent());
+        assertEquals(voteFromRep.get(), restaurantId);
+    }
+
+    @Test
+    @WithUserDetails(value = USER1_MAIL)
+    void updateTooLate() throws Exception {
+        changeTime(LocalTime.MIN);
+        int restaurantId = restaurant1.id();
+        MvcResult result = perform(MockMvcRequestBuilders.put(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .param("restaurantId", String.valueOf(restaurantId)))
+                .andExpect(status().isAccepted())
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains(TOO_LATE));
+        Optional<Integer> voteFromRep = voteRepository.getTodayVote(user1.id());
+        assertTrue(voteFromRep.isPresent());
+        assertEquals(voteFromRep.get(), vote1.getRestaurant().id());
+    }
+
+    @Test
+    @WithUserDetails(value = USER1_MAIL)
+    void delete() throws Exception {
+        changeTime(LocalTime.MAX);
+        perform(MockMvcRequestBuilders.delete(REST_URL))
+                .andExpect(status().isNoContent());
+        Optional<Integer> voteFromRep = voteRepository.getTodayVote(user1.id());
+        assertFalse(voteFromRep.isPresent());
+    }
+
+    @Test
+    @WithUserDetails(value = USER1_MAIL)
+    void deleteTooLate() throws Exception {
+        changeTime(LocalTime.MIN);
+        MvcResult result = perform(MockMvcRequestBuilders.delete(REST_URL))
+                .andReturn();
+        assertTrue(result.getResponse().getContentAsString().contains(TOO_LATE));
+        Optional<Integer> voteFromRep = voteRepository.getTodayVote(user1.id());
+        assertTrue(voteFromRep.isPresent());
+        assertEquals(voteFromRep.get(), vote1.getRestaurant().id());
+    }
+
+    private static void changeTime(LocalTime time) throws NoSuchFieldException, IllegalAccessException {
+        Field field = VoteController.class.getDeclaredField("deadline");
+        field.setAccessible(true);
+        field.set(null, time);
     }
 }

@@ -7,7 +7,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import ru.restaurant_voting.error.AppException;
 import ru.restaurant_voting.model.Vote;
 import ru.restaurant_voting.repository.RestaurantRepository;
 import ru.restaurant_voting.repository.UserRepository;
@@ -29,30 +28,51 @@ public class VoteController {
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
     static final String REST_URL = "/api/vote";
-    static final LocalTime deadline = LocalTime.of(11, 0);
+    static final String TOO_LATE = "It's too late to change your vote";
+    static LocalTime deadline = LocalTime.of(11, 0);
 
     @GetMapping
     public ResponseEntity<VoteTo> get(@AuthenticationPrincipal AuthUser authUser) {
-        return voteRepository.getTodayVote(authUser.id()).map(restaurantId ->
+        int userId = authUser.id();
+        log.info("get today vote from user {}", userId);
+        return voteRepository.getTodayVote(userId).map(restaurantId ->
                 ResponseEntity.ok(new VoteTo(restaurantId))).orElseGet(() ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<VoteTo> create(@AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public VoteTo create(@AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) {
+        int userId = authUser.id();
+        log.info("create vote for restaurant id={} from user {}", restaurantId, userId);
         Vote vote = new Vote();
         vote.setVote_date(LocalDate.now());
-        vote.setUser(userRepository.getReferenceById(authUser.id()));
+        vote.setUser(userRepository.getReferenceById(userId));
         vote.setRestaurant(restaurantRepository.getReferenceById(restaurantId));
-        return ResponseEntity.ok(VoteUtil.createFromVote(voteRepository.save(vote)));
+        return VoteUtil.createFromVote(voteRepository.save(vote));
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void update(@AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) throws Exception {
+    public ResponseEntity<String> update(@AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) throws Exception {
+        int userId = authUser.id();
         if (LocalTime.now().isAfter(deadline)) {
-            throw new AppException("It's too late to change your vote");
+            log.info("user id {} vote can not be updated due to the deadline", userId);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(TOO_LATE);
         }
+        log.info("update vote for restaurant id={} from user {}", restaurantId, userId);
         voteRepository.update(authUser.id(), restaurantId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<String> delete(@AuthenticationPrincipal AuthUser authUser) {
+        int userId = authUser.id();
+        if (LocalTime.now().isAfter(deadline)) {
+            log.info("user id {} vote can not be deleted due to the deadline", userId);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(TOO_LATE);
+        }
+        log.info("delete vote from user {}", userId);
+        voteRepository.deleteExisted(authUser.id());
+        return ResponseEntity.noContent().build();
     }
 }
