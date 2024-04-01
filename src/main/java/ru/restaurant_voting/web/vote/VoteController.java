@@ -27,7 +27,7 @@ public class VoteController {
     private final VoteRepository voteRepository;
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
-    static final String REST_URL = "/api/vote";
+    static final String REST_URL = "/api/votes";
     static final String TOO_LATE = "It's too late to change your vote";
     static LocalTime deadline = LocalTime.of(11, 0);
 
@@ -44,7 +44,7 @@ public class VoteController {
     @ResponseStatus(HttpStatus.CREATED)
     public VoteTo create(@AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) {
         int userId = authUser.id();
-        log.info("create vote for restaurant id={} from user {}", restaurantId, userId);
+        log.info("create vote for restaurant id={} from user id={}", restaurantId, userId);
         Vote vote = new Vote();
         vote.setVote_date(LocalDate.now());
         vote.setUser(userRepository.getReferenceById(userId));
@@ -52,11 +52,11 @@ public class VoteController {
         return VoteUtil.createFromVote(voteRepository.save(vote));
     }
 
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> update(@AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) throws Exception {
+    @PatchMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> update(@AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) {
         int userId = authUser.id();
         if (LocalTime.now().isAfter(deadline)) {
-            log.info("user id {} vote can not be updated due to the deadline", userId);
+            log.info("user id={} vote can not be updated due to the deadline", userId);
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(TOO_LATE);
         }
         log.info("update vote for restaurant id={} from user {}", restaurantId, userId);
@@ -68,10 +68,10 @@ public class VoteController {
     public ResponseEntity<String> delete(@AuthenticationPrincipal AuthUser authUser) {
         int userId = authUser.id();
         if (LocalTime.now().isAfter(deadline)) {
-            log.info("user id {} vote can not be deleted due to the deadline", userId);
+            log.info("user id={} vote can not be deleted due to the deadline", userId);
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(TOO_LATE);
         }
-        log.info("delete vote from user {}", userId);
+        log.info("delete vote from user id={}", userId);
         voteRepository.deleteExisted(authUser.id());
         return ResponseEntity.noContent().build();
     }

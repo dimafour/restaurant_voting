@@ -11,6 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
+import ru.restaurant_voting.model.Role;
 import ru.restaurant_voting.model.User;
 import ru.restaurant_voting.repository.UserRepository;
 import ru.restaurant_voting.web.AuthUser;
@@ -37,7 +38,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.securityMatcher("/api/**").authorizeHttpRequests(authz ->
-                        authz.requestMatchers("/api/**").authenticated())
+                        authz.requestMatchers("/api/**").authenticated()
+                                .requestMatchers("/api/admin/").hasRole(Role.ADMIN.name()))
                 .sessionManagement(smc -> smc.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();

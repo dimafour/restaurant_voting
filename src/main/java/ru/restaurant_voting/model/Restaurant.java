@@ -32,4 +32,8 @@ public class Restaurant extends NamedEntity implements HasId {
     public Restaurant(Integer id, String name) {
         super(id, name);
     }
+
+    public void addMenu(Meal... meals) {
+        this.menu = List.of(meals);
+    }
 }

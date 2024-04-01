@@ -6,6 +6,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.restaurant_voting.AbstractControllerTest;
 import ru.restaurant_voting.repository.VoteRepository;
 
@@ -39,6 +41,15 @@ class VoteControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @Transactional(propagation = Propagation.NEVER)
+    @WithUserDetails(value = USER2_MAIL)
+    void getNotFound() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @Test
     @WithUserDetails(value = USER2_MAIL)
     void create() throws Exception {
         int restaurantId = vote2.getRestaurant().id();
@@ -56,7 +67,7 @@ class VoteControllerTest extends AbstractControllerTest {
     void update() throws Exception {
         changeTime(LocalTime.MAX);
         int restaurantId = restaurant1.id();
-        perform(MockMvcRequestBuilders.put(REST_URL)
+        perform(MockMvcRequestBuilders.patch(REST_URL)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .param("restaurantId", String.valueOf(restaurantId)))
                 .andExpect(status().isNoContent());
@@ -70,7 +81,7 @@ class VoteControllerTest extends AbstractControllerTest {
     void updateTooLate() throws Exception {
         changeTime(LocalTime.MIN);
         int restaurantId = restaurant1.id();
-        MvcResult result = perform(MockMvcRequestBuilders.put(REST_URL)
+        MvcResult result = perform(MockMvcRequestBuilders.patch(REST_URL)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .param("restaurantId", String.valueOf(restaurantId)))
                 .andExpect(status().isAccepted())
