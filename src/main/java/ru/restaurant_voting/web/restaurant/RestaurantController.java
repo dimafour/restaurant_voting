@@ -18,9 +18,9 @@ import java.util.List;
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping(value = RestaurantController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = RestaurantController.URL_USER_RESTAURANTS, produces = MediaType.APPLICATION_JSON_VALUE)
 public class RestaurantController {
-    static final String REST_URL = "/api/user/restaurants";
+    static final String URL_USER_RESTAURANTS = "/api/user/restaurants";
 
     private RestaurantRepository restaurantRepository;
 
@@ -28,7 +28,6 @@ public class RestaurantController {
     public List<RestaurantTo> get(@AuthenticationPrincipal AuthUser authUser) {
         int userId = authUser.id();
         log.info("get today vote from user {}", userId);
-        List<Restaurant> todayList = restaurantRepository.getTodayList().orElseThrow();
-        return RestaurantUtil.getTosList(todayList);
+        return RestaurantUtil.getTosList(restaurantRepository.getTodayList());
     }
 }

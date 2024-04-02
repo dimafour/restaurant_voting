@@ -21,13 +21,13 @@ import java.time.LocalTime;
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping(value = VoteController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = VoteController.URL_USER_VOTES, produces = MediaType.APPLICATION_JSON_VALUE)
 public class VoteController {
 
     private final VoteRepository voteRepository;
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
-    static final String REST_URL = "/api/votes";
+    static final String URL_USER_VOTES = "/api/user/votes";
     static final String TOO_LATE = "It's too late to change your vote";
     static LocalTime deadline = LocalTime.of(11, 0);
 

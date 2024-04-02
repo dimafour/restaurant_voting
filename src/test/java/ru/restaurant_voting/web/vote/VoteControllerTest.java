@@ -8,7 +8,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.restaurant_voting.AbstractControllerTest;
+import ru.restaurant_voting.web.AbstractControllerTest;
 import ru.restaurant_voting.repository.VoteRepository;
 
 import java.lang.reflect.Field;
@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static ru.restaurant_voting.web.restaurant.RestaurantTestData.restaurant1;
 import static ru.restaurant_voting.web.user.UserTestData.*;
-import static ru.restaurant_voting.web.vote.VoteController.REST_URL;
+import static ru.restaurant_voting.web.vote.VoteController.URL_USER_VOTES;
 import static ru.restaurant_voting.web.vote.VoteController.TOO_LATE;
 import static ru.restaurant_voting.web.vote.VoteTestData.vote1;
 import static ru.restaurant_voting.web.vote.VoteTestData.vote2;
@@ -33,7 +33,7 @@ class VoteControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = USER1_MAIL)
     void get() throws Exception {
-        perform(MockMvcRequestBuilders.get(REST_URL))
+        perform(MockMvcRequestBuilders.get(URL_USER_VOTES))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -44,7 +44,7 @@ class VoteControllerTest extends AbstractControllerTest {
     @Transactional(propagation = Propagation.NEVER)
     @WithUserDetails(value = USER2_MAIL)
     void getNotFound() throws Exception {
-        perform(MockMvcRequestBuilders.get(REST_URL))
+        perform(MockMvcRequestBuilders.get(URL_USER_VOTES))
                 .andExpect(status().isNotFound())
                 .andDo(print());
     }
@@ -53,7 +53,7 @@ class VoteControllerTest extends AbstractControllerTest {
     @WithUserDetails(value = USER2_MAIL)
     void create() throws Exception {
         int restaurantId = vote2.getRestaurant().id();
-        perform(MockMvcRequestBuilders.post(REST_URL)
+        perform(MockMvcRequestBuilders.post(URL_USER_VOTES)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .param("restaurantId", String.valueOf(restaurantId)))
                 .andExpect(jsonPath("$.restaurantId").value(restaurantId));
@@ -67,7 +67,7 @@ class VoteControllerTest extends AbstractControllerTest {
     void update() throws Exception {
         changeTime(LocalTime.MAX);
         int restaurantId = restaurant1.id();
-        perform(MockMvcRequestBuilders.patch(REST_URL)
+        perform(MockMvcRequestBuilders.patch(URL_USER_VOTES)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .param("restaurantId", String.valueOf(restaurantId)))
                 .andExpect(status().isNoContent());
@@ -81,7 +81,7 @@ class VoteControllerTest extends AbstractControllerTest {
     void updateTooLate() throws Exception {
         changeTime(LocalTime.MIN);
         int restaurantId = restaurant1.id();
-        MvcResult result = perform(MockMvcRequestBuilders.patch(REST_URL)
+        MvcResult result = perform(MockMvcRequestBuilders.patch(URL_USER_VOTES)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .param("restaurantId", String.valueOf(restaurantId)))
                 .andExpect(status().isAccepted())
@@ -96,7 +96,7 @@ class VoteControllerTest extends AbstractControllerTest {
     @WithUserDetails(value = USER1_MAIL)
     void delete() throws Exception {
         changeTime(LocalTime.MAX);
-        perform(MockMvcRequestBuilders.delete(REST_URL))
+        perform(MockMvcRequestBuilders.delete(URL_USER_VOTES))
                 .andExpect(status().isNoContent());
         Optional<Integer> voteFromRep = voteRepository.getTodayVote(user1.id());
         assertFalse(voteFromRep.isPresent());
@@ -106,7 +106,7 @@ class VoteControllerTest extends AbstractControllerTest {
     @WithUserDetails(value = USER1_MAIL)
     void deleteTooLate() throws Exception {
         changeTime(LocalTime.MIN);
-        MvcResult result = perform(MockMvcRequestBuilders.delete(REST_URL))
+        MvcResult result = perform(MockMvcRequestBuilders.delete(URL_USER_VOTES))
                 .andReturn();
         assertTrue(result.getResponse().getContentAsString().contains(TOO_LATE));
         Optional<Integer> voteFromRep = voteRepository.getTodayVote(user1.id());

@@ -15,7 +15,7 @@ INSERT INTO RESTAURANT (NAME)
 VALUES ('Tasty and that-s it'),
        ('KFC'),
        ('Dolphinwolf'),
-       ('Pizza Hut');
+       ('Taco Bell');
 
 INSERT INTO MEAL (MEAL_DATE, PRICE, RESTAURANT_ID, NAME)
 VALUES (now(), 50000, 1, 'Big Hit'),
@@ -24,7 +24,9 @@ VALUES (now(), 50000, 1, 'Big Hit'),
        (now(), 40000, 2, 'Hot Wings'),
        (now(), 20000, 2, 'Twister'),
        (now(), 60000, 3, 'Lager Beer'),
-       (now(), 60000, 3, 'Indian Pale Ale');
+       (now(), 60000, 3, 'Indian Pale Ale'),
+       (date '2024-01-01', 30000, 4, 'Taco'),
+       (date '2024-01-01', 50000, 4, 'Burrito');
 
 INSERT INTO VOTE (USER_ID, RESTAURANT_ID, VOTE_DATE)
 VALUES (1, 3, now()),

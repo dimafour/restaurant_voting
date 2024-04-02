@@ -16,16 +16,16 @@ import java.util.List;
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping(value = AdminRestaurantController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = AdminRestaurantController.URL_ADMIN_RESTAURANTS, produces = MediaType.APPLICATION_JSON_VALUE)
 public class AdminRestaurantController {
-    static final String REST_URL = "/api/admin/restaurants";
+    static final String URL_ADMIN_RESTAURANTS = "/api/admin/restaurants";
 
     private RestaurantRepository restaurantRepository;
 
     @GetMapping
     public List<Restaurant> getAll() {
         log.info("get all restaurants");
-        return restaurantRepository.findAll();
+        return restaurantRepository.getAll();
     }
 
     @GetMapping("/{id}")
@@ -39,12 +39,13 @@ public class AdminRestaurantController {
         log.info("create {}", restaurant);
         Restaurant created = restaurantRepository.save(restaurant);
         URI uri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path(REST_URL + "/{id}")
+                .path(URL_ADMIN_RESTAURANTS + "/{id}")
                 .buildAndExpand(created.getId()).toUri();
         return ResponseEntity.created(uri).body(created);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void update(@RequestBody Restaurant restaurant, @PathVariable int id) {
         restaurant.setId(id);
         log.info("update restaurant {}", restaurant);
