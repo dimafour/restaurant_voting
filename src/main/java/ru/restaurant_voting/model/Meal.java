@@ -20,9 +20,9 @@ import java.time.LocalDate;
 public class Meal extends NamedEntity {
 
     @Column(name = "price", nullable = false)
-    @NotBlank
+    @NotNull
     @Range(min = 1, max = 5000_00)
-    private int price; // in cents
+    private Integer price; // in cents
 
     @Column(name = "meal_date", nullable = false)
     @NotNull
@@ -37,5 +37,21 @@ public class Meal extends NamedEntity {
         this.price = price;
         this.meal_date = meal_date;
         this.restaurant = restaurant;
+    }
+
+    public Meal(String name, int price) {
+        super(null, name);
+        this.price = price;
+    }
+
+    @Override
+    public String toString() {
+        return "Meal{" +
+               "price=" + price +
+               ", meal_date=" + meal_date +
+               ", restaurant=" + restaurant +
+               ", name='" + name + '\'' +
+               ", id=" + id +
+               '}';
     }
 }

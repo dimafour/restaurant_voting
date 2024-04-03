@@ -18,4 +18,14 @@ public class MealUtil {
                 )
                 .toList();
     }
+
+    public static List<Meal> getFromTo(List<MealTo> meals) {
+        if (meals == null) {
+            return Collections.emptyList();
+        }
+        return meals.stream().map(
+                        mealTo -> new Meal(mealTo.getName(), mealTo.getPrice())
+                )
+                .toList();
+    }
 }

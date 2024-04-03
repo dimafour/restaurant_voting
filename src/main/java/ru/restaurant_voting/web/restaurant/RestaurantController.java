@@ -7,7 +7,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.restaurant_voting.model.Restaurant;
 import ru.restaurant_voting.repository.RestaurantRepository;
 import ru.restaurant_voting.to.RestaurantTo;
 import ru.restaurant_voting.util.RestaurantUtil;

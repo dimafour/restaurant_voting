@@ -56,6 +56,6 @@ public class AdminRestaurantController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable int id) {
         log.info("delete restaurant id={}", id);
-        restaurantRepository.deleteById(id);
+        restaurantRepository.deleteExisted(id);
     }
 }

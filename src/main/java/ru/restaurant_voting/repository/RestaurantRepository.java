@@ -17,5 +17,4 @@ public interface RestaurantRepository extends BaseRepository<Restaurant> {
 
     @Query("SELECT r FROM Restaurant r ORDER BY r.id")
     List<Restaurant> getAll();
-
 }
