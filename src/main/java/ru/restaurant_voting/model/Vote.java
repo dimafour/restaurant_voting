@@ -1,5 +1,6 @@
 package ru.restaurant_voting.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -18,6 +19,7 @@ public class Vote extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @NotNull
+    @JsonBackReference
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)

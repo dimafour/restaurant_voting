@@ -2,7 +2,6 @@ package ru.restaurant_voting.repository;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
-import ru.restaurant_voting.error.NotFoundException;
 import ru.restaurant_voting.model.User;
 
 import java.util.Optional;
@@ -20,4 +19,7 @@ public interface UserRepository extends BaseRepository<User> {
         user.setEmail(user.getEmail().toLowerCase());
         return save(user);
     }
+
+    @Query("SELECT u FROM User u JOIN FETCH u.votes v JOIN FETCH v.restaurant WHERE u.id=:id")
+    Optional<User> getWithVotes(int id);
 }

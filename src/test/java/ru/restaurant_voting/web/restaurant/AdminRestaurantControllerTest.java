@@ -79,7 +79,7 @@ class AdminRestaurantControllerTest extends AbstractControllerTest {
         perform(MockMvcRequestBuilders.post(URL_ADMIN_RESTAURANTS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(restaurant)))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test

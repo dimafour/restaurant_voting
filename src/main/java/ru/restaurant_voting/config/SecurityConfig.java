@@ -29,6 +29,7 @@ public class SecurityConfig {
     public static final PasswordEncoder PASSWORD_ENCODER = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
     private final UserRepository userRepository;
+    private final RestAuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -51,6 +52,7 @@ public class SecurityConfig {
                         authz.requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
                                 .requestMatchers(HttpMethod.POST, "/api/profile").anonymous()
                                 .requestMatchers("/api/**").authenticated())
+                .httpBasic(hbc -> hbc.authenticationEntryPoint(authenticationEntryPoint))
                 .sessionManagement(smc -> smc.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();

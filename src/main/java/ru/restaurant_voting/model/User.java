@@ -1,5 +1,6 @@
 package ru.restaurant_voting.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -51,6 +52,7 @@ public class User extends NamedEntity implements HasIdAndEmail {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     @OrderBy("vote_date DESC")
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonManagedReference
     private List<Vote> votes;
 
     public User(Integer id, String name, String email, String password, Date registered, Collection<Role> roles) {

@@ -35,7 +35,7 @@ public class ProfileControllerTest extends AbstractControllerTest {
     @Test
     void getUnAuth() throws Exception {
         perform(MockMvcRequestBuilders.get(URL_USER_PROFILE))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -70,7 +70,7 @@ public class ProfileControllerTest extends AbstractControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(newTo)))
                 .andDo(print())
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
@@ -80,7 +80,7 @@ public class ProfileControllerTest extends AbstractControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(newTo)))
                 .andDo(print())
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
@@ -95,5 +95,15 @@ public class ProfileControllerTest extends AbstractControllerTest {
         User user = UserUtil.createNewFromTo(updatedTo);
         user.setId(USER1_ID);
         USER_MATCHER.assertMatch(userRepository.getExisted(USER1_ID), user);
+    }
+
+    @Test
+    @WithUserDetails(value = USER1_MAIL)
+    void getWithVotes() throws Exception {
+        perform(MockMvcRequestBuilders.get(URL_USER_PROFILE + "/with-votes"))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(USER_WITH_VOTES_MATCHER.contentJson(user1));
     }
 }
