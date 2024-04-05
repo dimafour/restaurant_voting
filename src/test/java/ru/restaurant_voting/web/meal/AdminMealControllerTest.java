@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.restaurant_voting.repository.MealRepository;
 import ru.restaurant_voting.util.JsonUtil;
 import ru.restaurant_voting.web.AbstractControllerTest;
@@ -36,10 +38,23 @@ class AdminMealControllerTest extends AbstractControllerTest {
         int restaurantId = restaurant2.id();
         perform(MockMvcRequestBuilders.post("/api/admin/restaurants/" + restaurantId + "/menu")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.writeValue(getTosList(NEW_MENU_R2))))
+                .content(JsonUtil.writeValue(getTosList(newMenuR2))))
                 .andExpect(status().isCreated());
 
-        MEAL_MATCHER.assertMatch(mealRepository.getMenu(restaurantId), NEW_MENU_R2);
+        MEAL_MATCHER.assertMatch(mealRepository.getMenu(restaurantId), newMenuR2);
+    }
+
+    @Test
+    @WithUserDetails(value = ADMIN_MAIL)
+    @Transactional(propagation = Propagation.NEVER)
+    void changeMenuNotValid() throws Exception {
+        int restaurantId = restaurant2.id();
+        perform(MockMvcRequestBuilders.post("/api/admin/restaurants/" + restaurantId + "/menu")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(getTosList(notValidMenuR2))))
+                .andExpect(status().is5xxServerError());
+
+        MEAL_MATCHER.assertMatch(mealRepository.getMenu(restaurantId), restaurant2.getMenu());
     }
 
     @Test

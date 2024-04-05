@@ -17,20 +17,17 @@ public class RestaurantTestData {
     public static final Restaurant restaurant2 = new Restaurant(2, "KFC");
     public static final Restaurant restaurant3 = new Restaurant(3, "Dolphinwolf");
     public static final Restaurant restaurant4 = new Restaurant(4, "Taco Bell");
-    public static final Restaurant restaurant5 = new Restaurant(5, "Pizza Hut");
+    public static final Restaurant restaurant5 = new Restaurant(null, "Pizza Hut");
+    public static final Restaurant restaurant = new Restaurant(null, "!");
 
     static {
-        restaurant1.addMenu(MEAL1_R1, MEAL2_R1, MEAL3_R1);
-        restaurant2.addMenu(MEAL1_R2, MEAL2_R2);
-        restaurant3.addMenu(MEAL1_R3, MEAL2_R3);
-        restaurant4.addMenu(MEAL1_R4_OLD, MEAL2_R4_OLD);
+        restaurant1.addMenu(meal1R1, meal2R1, meal3R1);
+        restaurant2.addMenu(meal1R2, meal2R2);
+        restaurant3.addMenu(meal1R3, meal2R3);
+        restaurant4.addMenu(meal1R4Old, meal2R4Old);
     }
     public static List<Restaurant> restaurantTodayList = List.of(restaurant1, restaurant2, restaurant3);
     public static List<Restaurant> restaurantAllList = List.of(restaurant1, restaurant2, restaurant3, restaurant4);
-
-    public static Restaurant getNew() {
-        return new Restaurant(null, "Pizza Hut");
-    }
 
     public static Restaurant getUpdated() {
         return new Restaurant(null, "Rostics");

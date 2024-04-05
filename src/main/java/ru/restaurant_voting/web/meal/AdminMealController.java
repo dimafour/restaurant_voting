@@ -1,5 +1,6 @@
 package ru.restaurant_voting.web.meal;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -33,7 +34,7 @@ public class AdminMealController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public List<MealTo> changeMenu(@PathVariable int restaurantid, @RequestBody List<MealTo> menuTo) {
+    public List<MealTo> changeMenu(@PathVariable int restaurantid, @Valid @RequestBody List<MealTo> menuTo) {
         List<Meal> menu = getFromTo(menuTo);
         menu.forEach(meal -> {
             meal.setRestaurant(restaurantRepository.getReferenceById(restaurantid));

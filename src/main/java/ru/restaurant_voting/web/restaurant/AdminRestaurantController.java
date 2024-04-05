@@ -1,5 +1,6 @@
 package ru.restaurant_voting.web.restaurant;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,9 @@ import ru.restaurant_voting.repository.RestaurantRepository;
 
 import java.net.URI;
 import java.util.List;
+
+import static ru.restaurant_voting.util.ValidationUtil.assureIdConsistent;
+import static ru.restaurant_voting.util.ValidationUtil.checkNew;
 
 @Slf4j
 @RestController
@@ -34,8 +38,15 @@ public class AdminRestaurantController {
         return ResponseEntity.of(restaurantRepository.get(id));
     }
 
+    @GetMapping("/by-name")
+    public ResponseEntity<Restaurant> getByName(@RequestParam String name) {
+        log.info("get restaurant {}", name);
+        return ResponseEntity.of(restaurantRepository.getRestaurantByName(name));
+    }
+
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Restaurant> create(@RequestBody Restaurant restaurant) {
+    public ResponseEntity<Restaurant> create(@Valid @RequestBody Restaurant restaurant) {
+        checkNew(restaurant);
         log.info("create {}", restaurant);
         Restaurant created = restaurantRepository.save(restaurant);
         URI uri = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -46,8 +57,8 @@ public class AdminRestaurantController {
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void update(@RequestBody Restaurant restaurant, @PathVariable int id) {
-        restaurant.setId(id);
+    public void update(@Valid @RequestBody Restaurant restaurant, @PathVariable int id) {
+        assureIdConsistent(restaurant, id);
         log.info("update restaurant {}", restaurant);
         restaurantRepository.save(restaurant);
     }

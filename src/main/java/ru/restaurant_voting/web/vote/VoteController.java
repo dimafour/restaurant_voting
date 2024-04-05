@@ -11,12 +11,14 @@ import ru.restaurant_voting.model.Vote;
 import ru.restaurant_voting.repository.RestaurantRepository;
 import ru.restaurant_voting.repository.UserRepository;
 import ru.restaurant_voting.repository.VoteRepository;
+import ru.restaurant_voting.to.RateLineTo;
 import ru.restaurant_voting.to.VoteTo;
 import ru.restaurant_voting.util.VoteUtil;
 import ru.restaurant_voting.web.AuthUser;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -74,5 +76,12 @@ public class VoteController {
         log.info("delete vote from user id={}", userId);
         voteRepository.deleteExisted(authUser.id());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/rating")
+    public List<RateLineTo> getRating() {
+        log.info("get restaurant rating for now");
+        List<Object[]> rawList = voteRepository.getRating();
+        return rawList.stream().map(o -> new RateLineTo((Integer) o[0], (Long) o[1])).toList();
     }
 }

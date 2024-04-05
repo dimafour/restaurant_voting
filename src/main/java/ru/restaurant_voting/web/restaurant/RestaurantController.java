@@ -24,9 +24,8 @@ public class RestaurantController {
     private RestaurantRepository restaurantRepository;
 
     @GetMapping
-    public List<RestaurantTo> get(@AuthenticationPrincipal AuthUser authUser) {
-        int userId = authUser.id();
-        log.info("get today vote from user {}", userId);
+    public List<RestaurantTo> getAll() {
+        log.info("get today restaurant list");
         return RestaurantUtil.getTosList(restaurantRepository.getTodayList());
     }
 }

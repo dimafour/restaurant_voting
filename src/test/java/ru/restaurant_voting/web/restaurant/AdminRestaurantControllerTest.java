@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.restaurant_voting.model.Restaurant;
 import ru.restaurant_voting.repository.RestaurantRepository;
@@ -51,14 +52,34 @@ class AdminRestaurantControllerTest extends AbstractControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
+    void getByName() throws Exception {
+        perform(MockMvcRequestBuilders.get(URL_ADMIN_RESTAURANTS + "/by-name")
+                .param("name", "Tasty and that-s it"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(RESTAURANT_MATCHER.contentJson(restaurant1));
+    }
+
+    @Test
+    @WithUserDetails(value = ADMIN_MAIL)
     void create() throws Exception {
+        ResultActions action = perform(MockMvcRequestBuilders.post(URL_ADMIN_RESTAURANTS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(restaurant5)));
+        Restaurant created = RESTAURANT_MATCHER.readFromJson(action);
+        int id = created.id();
+        restaurant5.setId(id);
+        RESTAURANT_MATCHER.assertMatch(created, restaurant5);
+        RESTAURANT_MATCHER.assertMatch(restaurantRepository.get(id).orElseThrow(), restaurant5);
+    }
+
+    @Test
+    @WithUserDetails(value = ADMIN_MAIL)
+    void createNotValid() throws Exception {
         perform(MockMvcRequestBuilders.post(URL_ADMIN_RESTAURANTS)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.writeValue(getNew())))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(RESTAURANT_MATCHER.contentJson(restaurant5));
-        RESTAURANT_MATCHER.assertMatch(restaurantRepository.get(restaurant5.id()).orElseThrow(), restaurant5);
+                .content(JsonUtil.writeValue(restaurant)))
+                .andExpect(status().is5xxServerError());
     }
 
     @Test

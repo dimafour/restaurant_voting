@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import ru.restaurant_voting.model.Role;
 import ru.restaurant_voting.model.User;
@@ -23,8 +25,13 @@ import java.util.Optional;
 @Slf4j
 @AllArgsConstructor
 public class SecurityConfig {
-    private final UserRepository userRepository;
+    public static final PasswordEncoder PASSWORD_ENCODER = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
+    private final UserRepository userRepository;
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return PASSWORD_ENCODER;
+    }
     @Bean
     UserDetailsService userDetailsService() {
         return email -> {

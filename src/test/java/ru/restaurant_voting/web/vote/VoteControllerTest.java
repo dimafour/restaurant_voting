@@ -22,8 +22,7 @@ import static ru.restaurant_voting.web.restaurant.RestaurantTestData.restaurant1
 import static ru.restaurant_voting.web.user.UserTestData.*;
 import static ru.restaurant_voting.web.vote.VoteController.URL_USER_VOTES;
 import static ru.restaurant_voting.web.vote.VoteController.TOO_LATE;
-import static ru.restaurant_voting.web.vote.VoteTestData.vote1;
-import static ru.restaurant_voting.web.vote.VoteTestData.vote2;
+import static ru.restaurant_voting.web.vote.VoteTestData.*;
 
 class VoteControllerTest extends AbstractControllerTest {
 
@@ -38,6 +37,17 @@ class VoteControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.restaurantId").value(vote1.getRestaurant().id()));
+    }
+
+    @Test
+    @WithUserDetails(value = USER1_MAIL)
+    void getRating() throws Exception {
+        perform(MockMvcRequestBuilders.get(URL_USER_VOTES + "/rating"))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(RATING_MATCHER.contentJson(rating));
     }
 
     @Test

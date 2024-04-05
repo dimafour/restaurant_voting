@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 import ru.restaurant_voting.model.Vote;
 
+import java.util.List;
 import java.util.Optional;
 
 @Transactional(readOnly = true)
@@ -22,5 +23,9 @@ public interface VoteRepository extends BaseRepository<Vote> {
     @Modifying
     @Query("DELETE FROM Vote v WHERE v.user.id=:userId AND v.vote_date=current_date")
     int delete(int userId);
+
+    @Query("SELECT v.restaurant.id, COUNT (v.restaurant.id) AS votenumber FROM Vote v GROUP BY v.restaurant.id " +
+           "HAVING v.vote_date=current_date ORDER BY votenumber DESC")
+    List<Object[]> getRating();
 
 }
