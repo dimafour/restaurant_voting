@@ -32,6 +32,7 @@ public class User extends NamedEntity implements HasIdAndEmail {
     @Column(name = "password", nullable = false)
     @NotBlank
     @Size(max = 128)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Column(name = "registered", nullable = false, columnDefinition = "timestamp default now()", updatable = false)

@@ -29,7 +29,7 @@ public class VoteController {
     private final VoteRepository voteRepository;
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
-    static final String URL_USER_VOTES = "/api/user/votes";
+    static final String URL_USER_VOTES = "/api/votes";
     static final String TOO_LATE = "It's too late to change your vote";
     static LocalTime deadline = LocalTime.of(11, 0);
 

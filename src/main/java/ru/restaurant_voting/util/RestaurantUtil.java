@@ -14,5 +14,4 @@ public class RestaurantUtil {
                                 MealUtil.getTosList(restaurant.getMenu())))
                 .toList();
     }
-
 }

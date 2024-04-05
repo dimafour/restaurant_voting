@@ -1,8 +1,8 @@
 INSERT INTO USERS (NAME, EMAIL, PASSWORD)
-VALUES ('User1', 'user1@ya.ru', 'user1'),
-       ('User2', 'user2@ya.ru', 'user2'),
-       ('User3', 'user3@ya.ru', 'user3'),
-       ('Admin', 'admin@ya.ru', 'admin');
+VALUES ('User1', 'user1@ya.ru', '{noop}user1'),
+       ('User2', 'user2@ya.ru', '{noop}user2'),
+       ('User3', 'user3@ya.ru', '{noop}user3'),
+       ('Admin', 'admin@ya.ru', '{noop}admin');
 
 INSERT INTO USER_ROLE (ROLE, USER_ID)
 VALUES ('USER', 1),

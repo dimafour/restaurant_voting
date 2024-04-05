@@ -1,13 +1,15 @@
 package ru.restaurant_voting.to;
 
 import lombok.*;
+import ru.restaurant_voting.model.BaseEntity;
 
-@AllArgsConstructor
-@Getter
-@Setter
-@EqualsAndHashCode
-@NoArgsConstructor(force = true)
-public class RateLineTo {
-    int restaurantId;
+@Value
+@EqualsAndHashCode(callSuper = true)
+public class RateLineTo extends BaseEntity {
     long votesNumber;
+
+    public RateLineTo(int restaurantId, long votesNumber) {
+        super(restaurantId);
+        this.votesNumber = votesNumber;
+    }
 }

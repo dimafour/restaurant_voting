@@ -1,14 +1,19 @@
 package ru.restaurant_voting.to;
 
-import lombok.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
+import org.hibernate.validator.constraints.Range;
 
 @Value
-@EqualsAndHashCode
-@AllArgsConstructor
-@Getter
-@Setter
-@NoArgsConstructor(force = true)
-public class MealTo {
-    String name;
-    int price;
+@EqualsAndHashCode(callSuper = true)
+public class MealTo extends NamedTo {
+    @NotNull
+    @Range(min = 1, max = 5000_00)
+    Integer price;
+
+    public MealTo(Integer id, String name, Integer price) {
+        super(id, name);
+        this.price = price;
+    }
 }

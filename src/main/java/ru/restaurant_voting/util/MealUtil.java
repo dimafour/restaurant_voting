@@ -14,7 +14,7 @@ public class MealUtil {
             return Collections.emptyList();
         }
         return meals.stream().map(
-                        meal -> new MealTo(meal.getName(), meal.getPrice())
+                        meal -> new MealTo(meal.getId(), meal.getName(), meal.getPrice())
                 )
                 .toList();
     }

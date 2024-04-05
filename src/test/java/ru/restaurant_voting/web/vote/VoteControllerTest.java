@@ -36,7 +36,7 @@ class VoteControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.restaurantId").value(vote1.getRestaurant().id()));
+                .andExpect(jsonPath("$.id").value(vote1.getRestaurant().id()));
     }
 
     @Test
@@ -66,7 +66,7 @@ class VoteControllerTest extends AbstractControllerTest {
         perform(MockMvcRequestBuilders.post(URL_USER_VOTES)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .param("restaurantId", String.valueOf(restaurantId)))
-                .andExpect(jsonPath("$.restaurantId").value(restaurantId));
+                .andExpect(jsonPath("$.id").value(restaurantId));
         Optional<Integer> voteFromRep = voteRepository.getTodayVote(user2.id());
         assertTrue(voteFromRep.isPresent());
         assertEquals(voteFromRep.get(), restaurantId);
