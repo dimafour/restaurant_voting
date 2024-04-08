@@ -66,31 +66,31 @@ public class VoteController {
     }
 
     @PatchMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Update your today's vote",
             description = "! If you update vote after 11.00 am your new vote will NOT be accepted !")
-    public ResponseEntity<String> update(@AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) {
+    public void update(@AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) {
         int userId = authUser.id();
         if (LocalTime.now().isAfter(deadline)) {
             log.info("user id={} vote can not be updated due to the deadline", userId);
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body(TOO_LATE);
+            throw new DataConflictException(TOO_LATE);
         }
         log.info("update vote for restaurant id={} from user {}", restaurantId, userId);
         voteRepository.update(authUser.id(), restaurantId);
-        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete your today's vote",
             description = "! If you delete vote after 11.00 am your new vote will NOT be accepted !")
-    public ResponseEntity<String> delete(@AuthenticationPrincipal AuthUser authUser) {
+    public void delete(@AuthenticationPrincipal AuthUser authUser) {
         int userId = authUser.id();
         if (LocalTime.now().isAfter(deadline)) {
             log.info("user id={} vote can not be deleted due to the deadline", userId);
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body(TOO_LATE);
+            throw new DataConflictException(TOO_LATE);
         }
         log.info("delete vote from user id={}", userId);
         voteRepository.deleteExisted(authUser.id());
-        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/rating")

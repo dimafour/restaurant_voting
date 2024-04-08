@@ -80,8 +80,8 @@ public class AdminMealController {
     @Operation(summary = "Delete meal by ID in restaurant")
     public void delete(@PathVariable int restaurantId, @PathVariable int id) {
         log.info("delete meal id={} in restaurant id={}", id, restaurantId);
-        mealRepository.getBelonged(id, restaurantId);
-        mealRepository.deleteExisted(id);
+        Meal meal = mealRepository.getBelonged(id, restaurantId);
+        mealRepository.delete(meal);
     }
 
     @PatchMapping(value = "/meal/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -94,7 +94,7 @@ public class AdminMealController {
     }
 
     @PostMapping(value = "/meal", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Create new meal in restaurant")
+    @Operation(summary = "Add new meal to today's menu in restaurant")
     public ResponseEntity<Meal> create(@PathVariable int restaurantId, @Valid @RequestBody MealTo mealTo) {
         checkNew(mealTo);
         log.info("create {} in restaurant id={}", mealTo, restaurantId);

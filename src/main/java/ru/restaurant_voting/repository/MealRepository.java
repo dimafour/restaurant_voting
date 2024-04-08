@@ -35,8 +35,8 @@ public interface MealRepository extends BaseRepository<Meal> {
     @Query("UPDATE Meal m SET m.name=:name, m.price=:price WHERE m.id=:id AND m.restaurant.id=:restaurantId")
     void update(int id, String name, int price, int restaurantId);
 
-    default void getBelonged(int id, int restaurantId) {
-        get(id, restaurantId).orElseThrow(
+    default Meal getBelonged(int id, int restaurantId) {
+        return get(id, restaurantId).orElseThrow(
                 () -> new DataConflictException("Meal id=" + id + " is not exist or doesn't belong to Restaurant id=" + restaurantId));
     }
 }

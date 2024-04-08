@@ -9,6 +9,7 @@ import java.util.Optional;
 
 @Transactional(readOnly = true)
 public interface RestaurantRepository extends BaseRepository<Restaurant> {
+
     @Query("SELECT r FROM Restaurant r JOIN FETCH r.menu m WHERE m.meal_date=current_date")
     List<Restaurant> getTodayList();
 

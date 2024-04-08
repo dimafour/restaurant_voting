@@ -10,8 +10,8 @@ import java.util.List;
 public class RestaurantUtil {
     public static List<RestaurantTo> getTosList(List<Restaurant> restaurantList) {
         return restaurantList.stream().map(
-                        restaurant -> new RestaurantTo(restaurant.id(), restaurant.getName(),
-                                MealUtil.getTosList(restaurant.getMenu())))
-                .toList();
+                restaurant -> new RestaurantTo(restaurant.id(), restaurant.getName(),
+                        MealUtil.getTosList(restaurant.getMenu()))
+        ).toList();
     }
 }

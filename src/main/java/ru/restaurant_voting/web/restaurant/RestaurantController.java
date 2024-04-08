@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.restaurant_voting.repository.RestaurantRepository;
 import ru.restaurant_voting.to.RestaurantTo;
-import ru.restaurant_voting.util.RestaurantUtil;
 
 import java.util.List;
+
+import static ru.restaurant_voting.util.RestaurantUtil.*;
 
 @Slf4j
 @RestController
@@ -30,6 +31,6 @@ public class RestaurantController {
     @Operation(summary = "Get today's restaurant list with menu")
     public List<RestaurantTo> getAll() {
         log.info("get today restaurant list");
-        return RestaurantUtil.getTosList(restaurantRepository.getTodayList());
+        return getTosList(restaurantRepository.getTodayList());
     }
 }
