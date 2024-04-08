@@ -1,11 +1,12 @@
 package ru.restaurant_voting.web.user;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.restaurant_voting.model.User;
@@ -20,10 +21,12 @@ import static ru.restaurant_voting.util.ValidationUtil.checkNew;
 
 @RestController
 @RequestMapping(value = ProfileController.URL_USER_PROFILE, produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Profile Controller", description = "Allow to manage your personal profile")
 public class ProfileController extends AbstractUserController {
     static final String URL_USER_PROFILE = "/api/profile";
 
     @GetMapping
+    @Operation(summary = "Get your profile info")
     public User get(@AuthenticationPrincipal AuthUser authUser) {
         log.info("get {}", authUser);
         return authUser.getUser();
@@ -31,12 +34,14 @@ public class ProfileController extends AbstractUserController {
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete your profile")
     public void delete(@AuthenticationPrincipal AuthUser authUser) {
         super.delete(authUser.id());
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Register new user")
     public ResponseEntity<User> register(@Valid @RequestBody UserTo userTo) {
         log.info("register {}", userTo);
         checkNew(userTo);
@@ -48,7 +53,7 @@ public class ProfileController extends AbstractUserController {
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Transactional
+    @Operation(summary = "Update your profile")
     public void update(@RequestBody @Valid UserTo userTo, @AuthenticationPrincipal AuthUser authUser) {
         log.info("update {} with id={}", userTo, authUser.id());
         assureIdConsistent(userTo, authUser.id());
@@ -57,6 +62,7 @@ public class ProfileController extends AbstractUserController {
     }
 
     @GetMapping("/with-votes")
+    @Operation(summary = "Get your profile info with votes history")
     public ResponseEntity<User> getWithVotes(@AuthenticationPrincipal AuthUser authUser) {
         return super.getWithVotes(authUser.id());
     }

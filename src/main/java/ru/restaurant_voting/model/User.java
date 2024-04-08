@@ -1,5 +1,6 @@
 package ru.restaurant_voting.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -16,6 +17,9 @@ import org.hibernate.annotations.OnDeleteAction;
 import ru.restaurant_voting.HasIdAndEmail;
 
 import java.util.*;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @Entity
 @Table(name = "users")
@@ -53,6 +57,7 @@ public class User extends NamedEntity implements HasIdAndEmail {
     @OrderBy("vote_date DESC")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonManagedReference
+    @JsonInclude(value = NON_EMPTY, content = NON_NULL)
     private List<Vote> votes;
 
     public User(Integer id, String name, String email, String password, Date registered, Collection<Role> roles) {

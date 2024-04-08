@@ -16,4 +16,9 @@ public class MealTo extends NamedTo {
         super(id, name);
         this.price = price;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + '[' + price + ']';
+    }
 }

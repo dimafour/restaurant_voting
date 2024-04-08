@@ -1,8 +1,11 @@
 package ru.restaurant_voting.web.meal;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,71 +28,80 @@ import static ru.restaurant_voting.util.ValidationUtil.*;
 @RestController
 @AllArgsConstructor
 @RequestMapping(value = AdminMealController.URL_ADMIN_MEAL, produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Admin Meal controller", description = "Allows to manage every single meal & change the whole menu for today")
 public class AdminMealController {
 
     private MealRepository mealRepository;
     private RestaurantRepository restaurantRepository;
     private MealService mealService;
-    static final String URL_ADMIN_MEAL = "/api/admin/restaurants/{restaurantid}";
+    static final String URL_ADMIN_MEAL = "/api/admin/restaurants/{restaurantId}";
 
     @GetMapping("/menu")
-    public List<MealTo> getMenu(@PathVariable int restaurantid) {
-        log.info("get today's menu from restaurant id={}", restaurantid);
-        return getTosList(mealRepository.getMenu(restaurantid));
+    @Operation(summary = "Get menu for today by restaurant ID")
+    public List<MealTo> getMenu(@PathVariable int restaurantId) {
+        log.info("get today's menu from restaurant id={}", restaurantId);
+        return getTosList(mealRepository.getMenu(restaurantId));
     }
 
     @PostMapping(value = "/menu", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public List<MealTo> changeMenu(@PathVariable int restaurantid, @Valid @RequestBody List<MealTo> menuTo) {
-        List<Meal> menu = getFromTo(menuTo);
+    @CacheEvict(value = "restaurants", allEntries = true)
+    @Operation(summary = "Change today's menu for Restaurant by ID",
+            description = "! Delete existed today's menu & save new !")
+    public List<MealTo> changeMenu(@PathVariable int restaurantId, @Valid @RequestBody List<MealTo> menuTo) {
+        List<Meal> menu = getFromToList(menuTo);
         menu.forEach(meal -> {
-            meal.setRestaurant(restaurantRepository.getReferenceById(restaurantid));
+            meal.setRestaurant(restaurantRepository.getReferenceById(restaurantId));
             meal.setMeal_date(LocalDate.now());
         });
-        log.info("create menu {} in restaurant id={}", menuTo, restaurantid);
-        List<Meal> rewrite = mealRepository.rewrite(restaurantid, menu);
-        return getTosList(rewrite);
+        log.info("create menu {} in restaurant id={}", menuTo, restaurantId);
+        return getTosList(mealRepository.rewrite(restaurantId, menu));
     }
 
     @DeleteMapping("/menu")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteMenu(@PathVariable int restaurantid) {
-        log.info("delete menu from restaurant id={}", restaurantid);
-        restaurantRepository.deleteExisted(restaurantid);
+    @CacheEvict(value = "restaurants", allEntries = true)
+    @Operation(summary = "Delete today's menu by restaurant ID")
+    public void deleteMenu(@PathVariable int restaurantId) {
+        log.info("delete menu from restaurant id={}", restaurantId);
+        mealRepository.delete(restaurantId);
     }
 
     @GetMapping("/meal/{id}")
-    public ResponseEntity<Meal> get(@PathVariable int restaurantid, @PathVariable int id) {
-        log.info("get meal id={} in restaurant id={}", id, restaurantid);
-        return ResponseEntity.of(mealRepository.get(id, restaurantid));
+    @Operation(summary = "Get meal by ID in restaurant")
+    public ResponseEntity<Meal> get(@PathVariable int restaurantId, @PathVariable int id) {
+        log.info("get meal id={} in restaurant id={}", id, restaurantId);
+        return ResponseEntity.of(mealRepository.get(id, restaurantId));
     }
 
     @DeleteMapping("/meal/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable int restaurantid, @PathVariable int id) {
-        log.info("delete meal id={} in restaurant id={}", id, restaurantid);
-        Meal meal = mealRepository.getBelonged(id, restaurantid);
-        mealRepository.delete(meal);
+    @CacheEvict(value = "restaurants", allEntries = true)
+    @Operation(summary = "Delete meal by ID in restaurant")
+    public void delete(@PathVariable int restaurantId, @PathVariable int id) {
+        log.info("delete meal id={} in restaurant id={}", id, restaurantId);
+        mealRepository.getBelonged(id, restaurantId);
+        mealRepository.deleteExisted(id);
     }
 
-    @PutMapping(value = "/meal/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/meal/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void update(@PathVariable int restaurantid, @PathVariable int id, @Valid @RequestBody Meal meal) {
-        log.info("update {} in restaurant id={}", meal, restaurantid);
-        assureIdConsistent(meal, id);
-        mealRepository.getBelonged(id, restaurantid);
-        mealService.save(restaurantid, meal);
+    @Operation(summary = "Update meal by ID in restaurant")
+    public void update(@PathVariable int restaurantId, @PathVariable int id, @Valid @RequestBody MealTo mealTo) {
+        assureIdConsistent(mealTo, id);
+        log.info("update {} in restaurant id={}", mealTo, restaurantId);
+        mealService.update(restaurantId, mealTo);
     }
 
     @PostMapping(value = "/meal", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Meal> create(@PathVariable int restaurantid, @Valid @RequestBody Meal meal) {
-        log.info("create {} in restaurant id={}", meal, restaurantid);
-        checkNew(meal);
-        Meal created = mealService.save(restaurantid, meal);
-        URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/api/admin/restaurants/" + restaurantid + "/meal" + "/{id}")
+    @Operation(summary = "Create new meal in restaurant")
+    public ResponseEntity<Meal> create(@PathVariable int restaurantId, @Valid @RequestBody MealTo mealTo) {
+        checkNew(mealTo);
+        log.info("create {} in restaurant id={}", mealTo, restaurantId);
+        Meal created = mealService.save(restaurantId, createFromTo(mealTo));
+        URI uri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/admin/restaurants/" + restaurantId + "/meal" + "/{id}")
                 .buildAndExpand(created.getId()).toUri();
-        return ResponseEntity.created(uriOfNewResource).body(created);
+        return ResponseEntity.created(uri).body(created);
     }
-
 }

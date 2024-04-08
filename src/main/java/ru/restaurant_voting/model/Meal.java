@@ -1,5 +1,6 @@
 package ru.restaurant_voting.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -9,6 +10,8 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
 
 import java.time.LocalDate;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
 
 @Entity
 @Table(name = "meal", uniqueConstraints = {@UniqueConstraint(
@@ -29,6 +32,7 @@ public class Meal extends NamedEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", nullable = false)
+    @JsonInclude(value = NON_EMPTY, content = NON_NULL)
     private Restaurant restaurant;
 
     public Meal(Integer id, String name, int price, LocalDate meal_date, Restaurant restaurant) {

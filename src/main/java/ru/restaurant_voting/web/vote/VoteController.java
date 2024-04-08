@@ -1,5 +1,7 @@
 package ru.restaurant_voting.web.vote;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -7,23 +9,26 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import ru.restaurant_voting.error.DataConflictException;
 import ru.restaurant_voting.model.Vote;
 import ru.restaurant_voting.repository.RestaurantRepository;
 import ru.restaurant_voting.repository.UserRepository;
 import ru.restaurant_voting.repository.VoteRepository;
 import ru.restaurant_voting.to.RateLineTo;
 import ru.restaurant_voting.to.VoteTo;
-import ru.restaurant_voting.util.VoteUtil;
 import ru.restaurant_voting.web.AuthUser;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import static ru.restaurant_voting.util.VoteUtil.*;
+
 @Slf4j
 @RestController
 @AllArgsConstructor
 @RequestMapping(value = VoteController.URL_USER_VOTES, produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Vote Controller", description = "Allow to choose restaurant from list to have lunch today")
 public class VoteController {
 
     private final VoteRepository voteRepository;
@@ -31,9 +36,11 @@ public class VoteController {
     private final RestaurantRepository restaurantRepository;
     static final String URL_USER_VOTES = "/api/votes";
     static final String TOO_LATE = "It's too late to change your vote";
+    static final String ALREADY_VOTED = "You have already voted today";
     static LocalTime deadline = LocalTime.of(11, 0);
 
     @GetMapping
+    @Operation(summary = "Get your today's vote")
     public ResponseEntity<VoteTo> get(@AuthenticationPrincipal AuthUser authUser) {
         int userId = authUser.id();
         log.info("get today vote from user {}", userId);
@@ -42,19 +49,25 @@ public class VoteController {
                 ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Vote for the restaurant by ID")
     public VoteTo create(@AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) {
         int userId = authUser.id();
         log.info("create vote for restaurant id={} from user id={}", restaurantId, userId);
+        if (voteRepository.getTodayVote(userId).isPresent()) {
+            throw new DataConflictException(ALREADY_VOTED);
+        }
         Vote vote = new Vote();
         vote.setVote_date(LocalDate.now());
         vote.setUser(userRepository.getReferenceById(userId));
         vote.setRestaurant(restaurantRepository.getReferenceById(restaurantId));
-        return VoteUtil.createFromVote(voteRepository.save(vote));
+        return createFromVote(voteRepository.save(vote));
     }
 
     @PatchMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Update your today's vote",
+            description = "! If you update vote after 11.00 am your new vote will NOT be accepted !")
     public ResponseEntity<String> update(@AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) {
         int userId = authUser.id();
         if (LocalTime.now().isAfter(deadline)) {
@@ -67,6 +80,8 @@ public class VoteController {
     }
 
     @DeleteMapping
+    @Operation(summary = "Delete your today's vote",
+            description = "! If you delete vote after 11.00 am your new vote will NOT be accepted !")
     public ResponseEntity<String> delete(@AuthenticationPrincipal AuthUser authUser) {
         int userId = authUser.id();
         if (LocalTime.now().isAfter(deadline)) {
@@ -79,6 +94,7 @@ public class VoteController {
     }
 
     @GetMapping("/rating")
+    @Operation(summary = "Get today restaurants rating list with votes number")
     public List<RateLineTo> getRating() {
         log.info("get restaurant rating for now");
         List<Object[]> rawList = voteRepository.getRating();

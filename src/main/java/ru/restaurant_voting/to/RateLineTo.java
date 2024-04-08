@@ -12,4 +12,8 @@ public class RateLineTo extends BaseEntity {
         super(restaurantId);
         this.votesNumber = votesNumber;
     }
+    @Override
+    public String toString() {
+        return super.toString() + '[' + votesNumber + ']';
+    }
 }

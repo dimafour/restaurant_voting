@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.restaurant_voting.util.MealUtil.*;
 import static ru.restaurant_voting.util.MealUtil.getTosList;
 import static ru.restaurant_voting.web.meal.MealTestData.*;
 import static ru.restaurant_voting.web.restaurant.RestaurantTestData.*;
@@ -97,7 +98,7 @@ class AdminMealControllerTest extends AbstractControllerTest {
         Meal newMeal = new Meal(null, "newMeal", 100_00, LocalDate.now(), restaurant1);
         ResultActions action = perform(MockMvcRequestBuilders.post(URL + restaurant1.getId() + "/meal")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.writeValue(newMeal)));
+                .content(JsonUtil.writeValue(createTo(newMeal))));
 
         Meal created = MEAL_MATCHER.readFromJson(action);
         int newId = created.getId();
@@ -110,9 +111,9 @@ class AdminMealControllerTest extends AbstractControllerTest {
     @WithUserDetails(value = ADMIN_MAIL)
     void update() throws Exception {
         Meal updated = new Meal(meal1R1.getId(), "updatedMeal", 1000_00, LocalDate.now(), restaurant1);
-        perform(MockMvcRequestBuilders.put(URL + restaurant1.getId() + "/meal/" + meal1R1.getId())
+        perform(MockMvcRequestBuilders.patch(URL + restaurant1.getId() + "/meal/" + meal1R1.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.writeValue(updated)))
+                .content(JsonUtil.writeValue(createTo(updated))))
                 .andExpect(status().isNoContent());
 
         MEAL_MATCHER.assertMatch(mealRepository.getExisted(meal1R1.getId()), updated);

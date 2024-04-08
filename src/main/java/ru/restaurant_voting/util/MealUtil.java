@@ -4,6 +4,7 @@ import lombok.experimental.UtilityClass;
 import ru.restaurant_voting.model.Meal;
 import ru.restaurant_voting.to.MealTo;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class MealUtil {
                 .toList();
     }
 
-    public static List<Meal> getFromTo(List<MealTo> meals) {
+    public static List<Meal> getFromToList(List<MealTo> meals) {
         if (meals == null) {
             return Collections.emptyList();
         }
@@ -27,5 +28,15 @@ public class MealUtil {
                         mealTo -> new Meal(mealTo.getName(), mealTo.getPrice())
                 )
                 .toList();
+    }
+
+    public static Meal createFromTo(MealTo mealTo) {
+        Meal meal = new Meal(mealTo.getName(), mealTo.getPrice());
+        meal.setMeal_date(LocalDate.now());
+        return meal;
+    }
+
+    public static MealTo createTo(Meal meal) {
+        return new MealTo(meal.getId(), meal.getName(), meal.getPrice());
     }
 }
