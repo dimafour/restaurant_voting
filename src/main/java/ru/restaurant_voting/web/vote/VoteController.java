@@ -65,7 +65,7 @@ public class VoteController {
         return createFromVote(voteRepository.save(vote));
     }
 
-    @PatchMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Update your today's vote",
             description = "! If you update vote after 11.00 am your new vote will NOT be accepted !")
