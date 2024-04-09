@@ -3,10 +3,15 @@
 ### Technical specifications
 > [Task to implement](https://github.com/JavaWebinar/topjava/blob/doc/doc/graduation.md)
 
-### Swagger
+### Deployed App
+**Test mode! Contact [me](https://t.me/dimafour) if not available**
+> * [API Docs](http://158.160.123.69:8080/v3/api-docs)
+> * [Swagger UI](http://158.160.123.69:8080/swagger-ui/index.html)
+
+### Swagger local
 Ensure that you're working at **localhost:8080**
 > * [API Docs](http://localhost:8080/v3/api-docs)
-> * [Swagger UI](http://localhost:8080/swagger-ui/v3)
+> * [Swagger UI](http://localhost:8080/swagger-ui/index.html)
 
 ### Tech Stack
 > * Java 21
