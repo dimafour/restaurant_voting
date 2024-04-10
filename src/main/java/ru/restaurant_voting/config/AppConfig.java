@@ -1,5 +1,7 @@
 package ru.restaurant_voting.config;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.hibernate5.jakarta.Hibernate5JakartaModule;
 import lombok.extern.slf4j.Slf4j;
@@ -11,14 +13,24 @@ import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.ProblemDetail;
 import ru.restaurant_voting.util.JsonUtil;
 
 import java.sql.SQLException;
+import java.util.Map;
+
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
 
 @Configuration
 @Slf4j
 @EnableCaching
 public class AppConfig {
+
+    @Bean
+    CacheManager cacheManager() {
+        return new CaffeineCacheManager();
+    }
 
     @Profile("!test")
     @Bean(initMethod = "start", destroyMethod = "stop")
@@ -30,11 +42,13 @@ public class AppConfig {
     @Autowired
     void configureAndStoreObjectMapper(ObjectMapper objectMapper) {
         objectMapper.registerModule(new Hibernate5JakartaModule());
+        objectMapper.addMixIn(ProblemDetail.class, MixIn.class);
         JsonUtil.setMapper(objectMapper);
     }
 
-    @Bean
-    CacheManager cacheManager() {
-        return new CaffeineCacheManager();
+    @JsonAutoDetect(fieldVisibility = NONE, getterVisibility = ANY)
+    interface MixIn {
+        @JsonAnyGetter
+        Map<String, Object> getProperties();
     }
 }

@@ -22,10 +22,7 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
-import ru.restaurant_voting.error.AppException;
-import ru.restaurant_voting.error.DataConflictException;
-import ru.restaurant_voting.error.IllegalRequestDataException;
-import ru.restaurant_voting.error.NotFoundException;
+import ru.restaurant_voting.error.*;
 
 import java.io.FileNotFoundException;
 import java.net.URI;
@@ -45,6 +42,7 @@ public class RestExceptionHandler {
             put(NotFoundException.class, NOT_FOUND);
             put(AuthenticationException.class, UNAUTHORIZED);
             put(FileNotFoundException.class, NOT_FOUND);
+            put(UpdateRestrictionException.class, FORBIDDEN);
             put(NoHandlerFoundException.class, NOT_FOUND);
             put(DataConflictException.class, CONFLICT);
             put(IllegalRequestDataException.class, BAD_REQUEST);

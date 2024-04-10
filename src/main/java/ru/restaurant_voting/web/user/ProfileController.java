@@ -55,9 +55,11 @@ public class ProfileController extends AbstractUserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Update your profile")
     public void update(@RequestBody @Valid UserTo userTo, @AuthenticationPrincipal AuthUser authUser) {
-        log.info("update {} with id={}", userTo, authUser.id());
-        assureIdConsistent(userTo, authUser.id());
+        int id = authUser.id();
+        assureIdConsistent(userTo, id);
+        checkModificationRestriction(id);
         User user = authUser.getUser();
+        log.info("update {} with id={}", userTo, id);
         userRepository.prepareAndSave(UserUtil.updateFromTo(user, userTo));
     }
 

@@ -6,16 +6,17 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
 import ru.restaurant_voting.model.User;
 import ru.restaurant_voting.repository.UserRepository;
 import ru.restaurant_voting.to.UserTo;
 import ru.restaurant_voting.util.JsonUtil;
-import ru.restaurant_voting.util.UserUtil;
 import ru.restaurant_voting.web.AbstractControllerTest;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.restaurant_voting.util.UserUtil.*;
 import static ru.restaurant_voting.web.user.ProfileController.URL_USER_PROFILE;
 import static ru.restaurant_voting.web.user.UserTestData.*;
 
@@ -39,17 +40,24 @@ public class ProfileControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @WithUserDetails(value = USER1_MAIL)
+    @WithUserDetails(value = USER5_MAIL)
     void delete() throws Exception {
         perform(MockMvcRequestBuilders.delete(URL_USER_PROFILE))
                 .andExpect(status().isNoContent());
-        USER_MATCHER.assertMatch(userRepository.getExisted(user1.id()), user1);
+        USER_MATCHER.assertMatch(userRepository.findAll(), user1, user2, user3, admin);
+    }
+
+    @Test
+    @WithUserDetails(value = USER1_MAIL)
+    void deleteNotUpdatable() throws Exception {
+        perform(MockMvcRequestBuilders.delete(URL_USER_PROFILE))
+                .andExpect(status().isForbidden());
     }
 
     @Test
     void register() throws Exception {
         UserTo newTo = new UserTo(null, "newName", "newemail@ya.ru", "newPassword");
-        User newUser = UserUtil.createNewFromTo(newTo);
+        User newUser = createNewFromTo(newTo);
         ResultActions action = perform(MockMvcRequestBuilders.post(URL_USER_PROFILE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(newTo)))
@@ -85,16 +93,27 @@ public class ProfileControllerTest extends AbstractControllerTest {
 
     @Test
     @WithUserDetails(value = USER1_MAIL)
-    void update() throws Exception {
+    void updateNotUpdatable() throws Exception {
         UserTo updatedTo = new UserTo(null, "newName", USER1_MAIL, "newPassword");
         perform(MockMvcRequestBuilders.put(URL_USER_PROFILE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(updatedTo)))
                 .andDo(print())
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithUserDetails(value = USER5_MAIL)
+    void update() throws Exception {
+        UserTo updatedTo = new UserTo(null, "newName", USER5_MAIL, "newPassword");
+        perform(MockMvcRequestBuilders.put(URL_USER_PROFILE)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(updatedTo)))
+                .andDo(print())
                 .andExpect(status().isNoContent());
-        User user = UserUtil.createNewFromTo(updatedTo);
-        user.setId(USER1_ID);
-        USER_MATCHER.assertMatch(userRepository.getExisted(USER1_ID), user);
+        User user = createNewFromTo(updatedTo);
+        user.setId(USER5_ID);
+        USER_MATCHER.assertMatch(userRepository.getExisted(USER5_ID), user);
     }
 
     @Test

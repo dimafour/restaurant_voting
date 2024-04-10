@@ -44,7 +44,7 @@ class AdminUserControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void getByEmail() throws Exception {
-        perform(MockMvcRequestBuilders.get(URL_ADMIN_USERS +"/by-email?email=" + admin.getEmail()))
+        perform(MockMvcRequestBuilders.get(URL_ADMIN_USERS + "/by-email?email=" + admin.getEmail()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(USER_MATCHER.contentJson(admin));
@@ -53,10 +53,18 @@ class AdminUserControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void delete() throws Exception {
-        perform(MockMvcRequestBuilders.delete(URL_ADMIN_USERS + "/" + USER1_ID))
+        perform(MockMvcRequestBuilders.delete(URL_ADMIN_USERS + "/" + USER5_ID))
                 .andDo(print())
                 .andExpect(status().isNoContent());
-        assertFalse(userRepository.findById(USER1_ID).isPresent());
+        assertFalse(userRepository.findById(USER5_ID).isPresent());
+    }
+
+    @Test
+    @WithUserDetails(value = ADMIN_MAIL)
+    void deleteNotUpdatable() throws Exception {
+        perform(MockMvcRequestBuilders.delete(URL_ADMIN_USERS + "/" + USER1_ID))
+                .andDo(print())
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -86,13 +94,26 @@ class AdminUserControllerTest extends AbstractControllerTest {
     void update() throws Exception {
         User updated = getUpdated();
         updated.setId(null);
-        perform(MockMvcRequestBuilders.put(URL_ADMIN_USERS + "/" + USER1_ID)
+        perform(MockMvcRequestBuilders.put(URL_ADMIN_USERS + "/" + USER5_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonWithPassword(updated, "newPass")))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        USER_MATCHER.assertMatch(userRepository.getExisted(USER1_ID), getUpdated());
+        USER_MATCHER.assertMatch(userRepository.getExisted(USER5_ID), getUpdated());
+    }
+
+    @Test
+    @WithUserDetails(value = ADMIN_MAIL)
+    void updateNotUpdatable() throws Exception {
+        User updated = new User(null, "updatedName", "new@email.com", "newPass");
+        perform(MockMvcRequestBuilders.put(URL_ADMIN_USERS + "/" + USER1_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonWithPassword(updated, "newPass")))
+                .andDo(print())
+                .andExpect(status().isForbidden());
+
+        USER_MATCHER.assertMatch(userRepository.getExisted(USER1_ID), user1);
     }
 
     @Test
@@ -117,18 +138,18 @@ class AdminUserControllerTest extends AbstractControllerTest {
         perform(MockMvcRequestBuilders.get(URL_ADMIN_USERS))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(USER_MATCHER.contentJson(admin, user1, user2, user3));
+                .andExpect(USER_MATCHER.contentJson(admin, user1, user2, user3, user5));
     }
 
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void getWithMeals() throws Exception {
-        perform(MockMvcRequestBuilders.get(URL_ADMIN_USERS + "/" + ADMIN_ID + "/with-votes"))
+        perform(MockMvcRequestBuilders.get(URL_ADMIN_USERS + "/" + USER1_ID + "/with-votes"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(USER_WITH_VOTES_MATCHER.contentJson(admin));
+                .andExpect(USER_WITH_VOTES_MATCHER.contentJson(user1));
     }
 
 

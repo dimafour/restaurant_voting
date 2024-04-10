@@ -2,14 +2,16 @@ INSERT INTO USERS (NAME, EMAIL, PASSWORD)
 VALUES ('User1', 'user1@ya.ru', '{noop}user1'),
        ('User2', 'user2@ya.ru', '{noop}user2'),
        ('User3', 'user3@ya.ru', '{noop}user3'),
-       ('Admin', 'admin@ya.ru', '{noop}admin');
+       ('Admin', 'admin@ya.ru', '{noop}admin'),
+       ('User5', 'user5@ya.ru', '{noop}user5');
 
 INSERT INTO USER_ROLE (ROLE, USER_ID)
 VALUES ('USER', 1),
        ('USER', 2),
        ('USER', 3),
-       ('ADMIN', 4),
-       ('USER', 4);
+       ('USER', 5),
+       ('USER', 4),
+       ('ADMIN', 4);
 
 INSERT INTO RESTAURANT (NAME)
 VALUES ('Tasty and that-s it'),

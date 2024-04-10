@@ -67,8 +67,9 @@ public class AdminUserController extends AbstractUserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Update user by ID")
     public void update(@Valid @RequestBody User user, @PathVariable int id) {
-        log.info("update {} with id={}", user, id);
         assureIdConsistent(user, id);
+        checkModificationRestriction(id);
+        log.info("update {} with id={}", user, id);
         userRepository.prepareAndSave(user);
     }
 
