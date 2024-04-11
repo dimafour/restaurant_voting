@@ -15,6 +15,9 @@ public interface MealRepository extends BaseRepository<Meal> {
     @Query("SELECT m FROM Meal m WHERE m.restaurant.id=:restaurantId AND m.meal_date=current_date")
     List<Meal> getMenu(int restaurantId);
 
+    @Query("SELECT m FROM Meal m WHERE m.restaurant.id=:restaurantId")
+    List<Meal> getHistory(int restaurantId);
+
     @Modifying
     @Transactional
     @Query("DELETE FROM Meal m WHERE m.restaurant.id=:restaurantId AND m.meal_date=current_date")

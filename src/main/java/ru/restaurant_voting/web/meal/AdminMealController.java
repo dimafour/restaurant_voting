@@ -38,10 +38,10 @@ public class AdminMealController {
     static final String URL_ADMIN_MEAL = "/api/admin/restaurants/{restaurantId}";
 
     @GetMapping("/menu")
-    @Operation(summary = "Get menu for today by restaurant ID")
-    public List<MealTo> getMenu(@PathVariable int restaurantId) {
-        log.info("get today's menu from restaurant id={}", restaurantId);
-        return getTosList(mealRepository.getMenu(restaurantId));
+    @Operation(summary = "Get menu by restaurant ID (default - for today, or show all history)")
+    public List<Meal> getMenu(@PathVariable int restaurantId, @RequestParam(defaultValue = "false") boolean showHistory) {
+        log.info("get menu for {} from restaurant id={}", showHistory ? "all the time" : "today", restaurantId);
+        return showHistory ? mealRepository.getHistory(restaurantId) : mealRepository.getMenu(restaurantId);
     }
 
     @PostMapping(value = "/menu", consumes = MediaType.APPLICATION_JSON_VALUE)
