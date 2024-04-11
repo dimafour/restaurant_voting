@@ -4,12 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.restaurant_voting.repository.RestaurantRepository;
+import ru.restaurant_voting.service.RestaurantService;
 import ru.restaurant_voting.to.RestaurantTo;
 
 import java.util.List;
@@ -24,13 +23,12 @@ import static ru.restaurant_voting.util.RestaurantUtil.*;
 public class RestaurantController {
     static final String URL_USER_RESTAURANTS = "/api/restaurants";
 
-    private RestaurantRepository restaurantRepository;
+    private RestaurantService restaurantService;
 
     @GetMapping
-    @Cacheable("restaurants")
     @Operation(summary = "Get today's restaurant list with menu")
     public List<RestaurantTo> getAll() {
-        log.info("get today restaurant list");
-        return getTosList(restaurantRepository.getTodayList());
+        log.info("get today's restaurants list with menu");
+        return getTosList(restaurantService.getTodayList());
     }
 }

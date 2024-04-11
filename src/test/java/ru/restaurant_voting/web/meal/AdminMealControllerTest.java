@@ -6,8 +6,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import ru.restaurant_voting.model.Meal;
 import ru.restaurant_voting.repository.MealRepository;
 import ru.restaurant_voting.util.JsonUtil;
@@ -54,7 +52,6 @@ class AdminMealControllerTest extends AbstractControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
-    @Transactional(propagation = Propagation.NEVER)
     void changeMenuNotValid() throws Exception {
         int restaurantId = restaurant2.id();
         perform(MockMvcRequestBuilders.post(URL + restaurantId + "/menu")
@@ -111,7 +108,7 @@ class AdminMealControllerTest extends AbstractControllerTest {
     @WithUserDetails(value = ADMIN_MAIL)
     void update() throws Exception {
         Meal updated = new Meal(meal1R1.getId(), "updatedMeal", 1000_00, LocalDate.now(), restaurant1);
-        perform(MockMvcRequestBuilders.patch(URL + restaurant1.getId() + "/meal/" + meal1R1.getId())
+        perform(MockMvcRequestBuilders.put(URL + restaurant1.getId() + "/meal/" + meal1R1.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(createTo(updated))))
                 .andExpect(status().isNoContent());

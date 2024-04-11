@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.restaurant_voting.model.Meal;
 import ru.restaurant_voting.repository.MealRepository;
 import ru.restaurant_voting.repository.RestaurantRepository;
-import ru.restaurant_voting.to.MealTo;
 
 @Service
 @AllArgsConstructor
@@ -22,7 +21,9 @@ public class MealService {
         return mealRepository.save(meal);
     }
 
-    public void update(int restaurantId, MealTo meal) {
-        mealRepository.update(meal.getId(), meal.getName(), meal.getPrice(), restaurantId);
+    public void update(int restaurantId, Meal meal) {
+        Meal oldMeal = mealRepository.getBelonged(meal.id(), restaurantId);
+        meal.setMeal_date(oldMeal.getMeal_date());
+        mealRepository.save(meal);
     }
 }

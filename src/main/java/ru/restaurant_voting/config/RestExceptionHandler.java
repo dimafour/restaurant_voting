@@ -16,7 +16,6 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -29,9 +28,9 @@ import java.net.URI;
 import java.nio.file.AccessDeniedException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.*;
+import static org.springframework.web.ErrorResponse.*;
 
 @RestControllerAdvice
 @AllArgsConstructor
@@ -70,12 +69,19 @@ public class RestExceptionHandler {
         Map<String, String> invalidParams = getErrorMap(ex.getBindingResult());
         String path = request.getRequestURI();
         log.warn("BindException with invalidParams {} at request {}", invalidParams, path);
-        return createProblemDetail(ex, path, UNPROCESSABLE_ENTITY, "BindException");
+        return createProblemDetail(ex, path, UNPROCESSABLE_ENTITY, "BindException", Map.of("invalid_params", invalidParams));
     }
 
     @ExceptionHandler(Exception.class)
     ProblemDetail exception(Exception ex, HttpServletRequest request) {
-        return processException(ex, request);
+        String path = request.getRequestURI();
+        Class<? extends Exception> exClass = ex.getClass();
+        HttpStatus status = HTTP_STATUS_MAP.entrySet().stream()
+                .filter(entry -> entry.getKey().isAssignableFrom(exClass))
+                .findAny().map(Map.Entry::getValue).orElse(INTERNAL_SERVER_ERROR);
+        Throwable root = getRootCause(ex);
+        log.error("Exception {} at request {}", root, path);
+        return createProblemDetail(ex, path, status, ex.getMessage(), Map.of());
     }
 
     private Map<String, String> getErrorMap(BindingResult result) {
@@ -89,27 +95,11 @@ public class RestExceptionHandler {
         return invalidParams;
     }
 
-    ProblemDetail processException(@NonNull Exception ex, HttpServletRequest request) {
-        String path = request.getRequestURI();
-        Class<? extends Exception> exClass = ex.getClass();
-        Optional<HttpStatus> optType = HTTP_STATUS_MAP.entrySet().stream()
-                .filter(entry -> entry.getKey().isAssignableFrom(exClass))
-                .findAny().map(Map.Entry::getValue);
-        if (optType.isPresent()) {
-            log.error("Exception {} at request {}", ex, path);
-            return createProblemDetail(ex, path, optType.get(), ex.getMessage());
-        } else {
-            Throwable root = getRootCause(ex);
-            log.error("Exception {} at request {}", root, path);
-            return createProblemDetail(ex, path, INTERNAL_SERVER_ERROR, "Exception " + root.getClass().getSimpleName());
-        }
-    }
-
-    private ProblemDetail createProblemDetail(Exception ex, String path, HttpStatus status, String defaultDetail) {
-        ErrorResponse.Builder builder = ErrorResponse.builder(ex, status, defaultDetail);
-        return builder
-                .title(ex.getMessage())
+    private ProblemDetail createProblemDetail(Exception ex, String path, HttpStatus status, String defaultDetail, @NonNull Map<String, Object> additionalParams) {
+        ProblemDetail pd = builder(ex, status, defaultDetail)
                 .instance(URI.create(path))
                 .build().getBody();
+        additionalParams.forEach(pd::setProperty);
+        return pd;
     }
 }

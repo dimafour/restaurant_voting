@@ -10,10 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.restaurant_voting.error.DataConflictException;
+import ru.restaurant_voting.error.NotFoundException;
 import ru.restaurant_voting.model.Vote;
-import ru.restaurant_voting.repository.RestaurantRepository;
 import ru.restaurant_voting.repository.UserRepository;
 import ru.restaurant_voting.repository.VoteRepository;
+import ru.restaurant_voting.service.RestaurantService;
 import ru.restaurant_voting.to.RateLineTo;
 import ru.restaurant_voting.to.VoteTo;
 import ru.restaurant_voting.web.AuthUser;
@@ -33,10 +34,11 @@ public class VoteController {
 
     private final VoteRepository voteRepository;
     private final UserRepository userRepository;
-    private final RestaurantRepository restaurantRepository;
+    private final RestaurantService restaurantService;
     static final String URL_USER_VOTES = "/api/votes";
     static final String TOO_LATE = "It's too late to change your vote";
     static final String ALREADY_VOTED = "You have already voted today";
+    static final String NOTHING_TO_UPDATE = "Your vote is not found - Nothing to update";
     static LocalTime deadline = LocalTime.of(11, 0);
 
     @GetMapping
@@ -54,15 +56,15 @@ public class VoteController {
     @Operation(summary = "Vote for the restaurant by ID")
     public VoteTo create(@AuthenticationPrincipal AuthUser authUser, @RequestParam int restaurantId) {
         int userId = authUser.id();
-        log.info("create vote for restaurant id={} from user id={}", restaurantId, userId);
         if (voteRepository.getTodayVote(userId).isPresent()) {
             throw new DataConflictException(ALREADY_VOTED);
         }
+        log.info("create vote for restaurant id={} from user id={}", restaurantId, userId);
         Vote vote = new Vote();
         vote.setVote_date(LocalDate.now());
         vote.setUser(userRepository.getReferenceById(userId));
-        vote.setRestaurant(restaurantRepository.getReferenceById(restaurantId));
-        return createFromVote(voteRepository.save(vote));
+        vote.setRestaurant(restaurantService.getRestaurant(restaurantId));
+        return createTo(voteRepository.save(vote));
     }
 
     @PatchMapping
@@ -74,6 +76,9 @@ public class VoteController {
         if (LocalTime.now().isAfter(deadline)) {
             log.info("user id={} vote can not be updated due to the deadline", userId);
             throw new DataConflictException(TOO_LATE);
+        }
+        if (voteRepository.getTodayVote(userId).isEmpty()) {
+            throw new NotFoundException(NOTHING_TO_UPDATE);
         }
         log.info("update vote for restaurant id={} from user {}", restaurantId, userId);
         voteRepository.update(authUser.id(), restaurantId);
@@ -98,6 +103,9 @@ public class VoteController {
     public List<RateLineTo> getRating() {
         log.info("get restaurant rating for now");
         List<Object[]> rawList = voteRepository.getRating();
+        if (rawList.isEmpty()) {
+            throw new NotFoundException("No votes today yet");
+        }
         return rawList.stream().map(o -> new RateLineTo((Integer) o[0], (Long) o[1])).toList();
     }
 }

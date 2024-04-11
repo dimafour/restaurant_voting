@@ -32,6 +32,7 @@ public class MealUtil {
 
     public static Meal createFromTo(MealTo mealTo) {
         Meal meal = new Meal(mealTo.getName(), mealTo.getPrice());
+        meal.setId(mealTo.getId());
         meal.setMeal_date(LocalDate.now());
         return meal;
     }

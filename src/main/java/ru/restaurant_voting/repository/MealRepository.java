@@ -18,22 +18,17 @@ public interface MealRepository extends BaseRepository<Meal> {
     @Modifying
     @Transactional
     @Query("DELETE FROM Meal m WHERE m.restaurant.id=:restaurantId AND m.meal_date=current_date")
-    int delete(int restaurantId);
+    void deleteToday(int restaurantId);
 
     @Modifying
     @Transactional
     default List<Meal> rewrite(int restaurantId, List<Meal> menu) {
-        delete(restaurantId);
+        deleteToday(restaurantId);
         return saveAll(menu);
     }
 
     @Query("SELECT m FROM Meal m WHERE m.id=:id and m.restaurant.id =:restaurantId")
     Optional<Meal> get(int id, int restaurantId);
-
-    @Transactional
-    @Modifying
-    @Query("UPDATE Meal m SET m.name=:name, m.price=:price WHERE m.id=:id AND m.restaurant.id=:restaurantId")
-    void update(int id, String name, int price, int restaurantId);
 
     default Meal getBelonged(int id, int restaurantId) {
         return get(id, restaurantId).orElseThrow(

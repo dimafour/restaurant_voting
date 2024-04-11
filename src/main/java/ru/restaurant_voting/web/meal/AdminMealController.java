@@ -12,9 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.restaurant_voting.model.Meal;
+import ru.restaurant_voting.model.Restaurant;
 import ru.restaurant_voting.repository.MealRepository;
-import ru.restaurant_voting.repository.RestaurantRepository;
 import ru.restaurant_voting.service.MealService;
+import ru.restaurant_voting.service.RestaurantService;
 import ru.restaurant_voting.to.MealTo;
 
 import java.net.URI;
@@ -32,7 +33,7 @@ import static ru.restaurant_voting.util.ValidationUtil.*;
 public class AdminMealController {
 
     private MealRepository mealRepository;
-    private RestaurantRepository restaurantRepository;
+    private RestaurantService restaurantService;
     private MealService mealService;
     static final String URL_ADMIN_MEAL = "/api/admin/restaurants/{restaurantId}";
 
@@ -50,8 +51,9 @@ public class AdminMealController {
             description = "! Delete existed today's menu & save new !")
     public List<MealTo> changeMenu(@PathVariable int restaurantId, @Valid @RequestBody List<MealTo> menuTo) {
         List<Meal> menu = getFromToList(menuTo);
+        Restaurant restaurant = restaurantService.getRestaurant(restaurantId);
         menu.forEach(meal -> {
-            meal.setRestaurant(restaurantRepository.getReferenceById(restaurantId));
+            meal.setRestaurant(restaurant);
             meal.setMeal_date(LocalDate.now());
         });
         log.info("create menu {} in restaurant id={}", menuTo, restaurantId);
@@ -64,7 +66,7 @@ public class AdminMealController {
     @Operation(summary = "Delete today's menu by restaurant ID")
     public void deleteMenu(@PathVariable int restaurantId) {
         log.info("delete menu from restaurant id={}", restaurantId);
-        mealRepository.delete(restaurantId);
+        mealRepository.deleteToday(restaurantId);
     }
 
     @GetMapping("/meal/{id}")
@@ -79,18 +81,18 @@ public class AdminMealController {
     @CacheEvict(value = "restaurants", allEntries = true)
     @Operation(summary = "Delete meal by ID in restaurant")
     public void delete(@PathVariable int restaurantId, @PathVariable int id) {
-        log.info("delete meal id={} in restaurant id={}", id, restaurantId);
         Meal meal = mealRepository.getBelonged(id, restaurantId);
+        log.info("delete meal id={} in restaurant id={}", id, restaurantId);
         mealRepository.delete(meal);
     }
 
-    @PatchMapping(value = "/meal/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/meal/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Update meal by ID in restaurant")
     public void update(@PathVariable int restaurantId, @PathVariable int id, @Valid @RequestBody MealTo mealTo) {
         assureIdConsistent(mealTo, id);
         log.info("update {} in restaurant id={}", mealTo, restaurantId);
-        mealService.update(restaurantId, mealTo);
+        mealService.update(restaurantId, createFromTo(mealTo));
     }
 
     @PostMapping(value = "/meal", consumes = MediaType.APPLICATION_JSON_VALUE)

@@ -6,7 +6,7 @@ import ru.restaurant_voting.to.VoteTo;
 
 @UtilityClass
 public class VoteUtil {
-    public static VoteTo createFromVote(Vote vote) {
+    public static VoteTo createTo(Vote vote) {
         return new VoteTo(vote.getRestaurant().id());
     }
 }
