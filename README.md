@@ -1,7 +1,17 @@
 ## Restaurant Voting REST API
 
-### Technical specifications
-> [Task to implement](https://github.com/JavaWebinar/topjava/blob/doc/doc/graduation.md)
+### Technical requirements
+> Design and implement a REST API using Hibernate/Spring/SpringMVC (Spring-Boot preferred!) without frontend.
+Build a voting system for deciding where to have lunch.
+2 types of users: admin and regular users
+* Admin can input a restaurant and it's lunch menu of the day (2-5 items usually, just a dish name and price)
+* Menu changes each day (admins do the updates)
+* Users can vote for a restaurant they want to have lunch at today
+* Only one vote counted per user
+* If user votes again the same day:
+  * If it is before 11:00 we assume that he changed his mind.
+  * If it is after 11:00 then it is too late, vote can't be changed
+* Each restaurant provides a new menu each day.
 
 ### Deployed App
 **Test mode! Contact [me](https://t.me/dimafour) if not available**
@@ -24,6 +34,6 @@ Ensure that you're working at **localhost:8080**
 > * This API allow users to vote for the restaurant they want to dinner at. 
 > * Two types of roles: regular users & admins
 > * Admins create, update, delete restaurants, menus and meals for today 
-> * Admins have access to stored vote history & tools to manage users' profiles
+> * Admins have tools to manage users' profiles
 > * User can vote only once a day & change their decision before deadline (11.00 am)
 > * All summary & API methods with parameters info are available at Swagger UI
