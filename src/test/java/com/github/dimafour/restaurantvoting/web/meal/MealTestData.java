@@ -27,10 +27,10 @@ public class MealTestData {
     public static Meal meal1R4Old = new Meal(8, "Taco", 30000, LocalDate.of(2024, 1, 1), restaurant4);
     public static Meal meal2R4Old = new Meal(9, "Burrito", 50000, LocalDate.now(), restaurant4);
 
-    public static Meal meal1R2New = new Meal(10, "French Fries", 40000, LocalDate.now(), restaurant2);
-    public static Meal meal2R2New = new Meal(11, "Strips", 30000, LocalDate.now(), restaurant2);
+    public static Meal meal1R2New = new Meal(11, "French Fries", 40000, LocalDate.now(), restaurant2);
+    public static Meal meal2R2New = new Meal(12, "Strips", 30000, LocalDate.now(), restaurant2);
 
-    public static Meal meal1R2NotValid = new Meal(10, "a", 40000000, LocalDate.now(), restaurant2);
+    public static Meal meal1R2NotValid = new Meal(10, "", 1111, LocalDate.now(), restaurant2);
     public static Meal meal2R2NotValid = new Meal(11, "b", -1000, LocalDate.now(), restaurant2);
 
     public static List<Meal> newMenuR2 = List.of(meal1R2New, meal2R2New);

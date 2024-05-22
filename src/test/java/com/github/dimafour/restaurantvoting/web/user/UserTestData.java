@@ -4,24 +4,15 @@ import com.github.dimafour.restaurantvoting.model.Role;
 import com.github.dimafour.restaurantvoting.model.User;
 import com.github.dimafour.restaurantvoting.util.JsonUtil;
 import com.github.dimafour.restaurantvoting.web.MatcherFactory;
-import com.github.dimafour.restaurantvoting.web.vote.VoteTestData;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import static com.github.dimafour.restaurantvoting.web.vote.VoteTestData.*;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserTestData {
     public static final MatcherFactory.Matcher<User> USER_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(User.class, "registered", "votes", "password");
-    public static MatcherFactory.Matcher<User> USER_WITH_VOTES_MATCHER =
-            MatcherFactory.usingAssertions(User.class,
-                    (a, e) -> assertThat(a).usingRecursiveComparison()
-                            .ignoringFields("registered", "votes.user", "votes.id", "password", "votes.restaurant.menu").isEqualTo(e),
-                    (a, e) -> {
-                        throw new UnsupportedOperationException();
-                    });
 
     public static final int USER1_ID = 1;
     public static final int USER2_ID = 2;

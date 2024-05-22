@@ -19,7 +19,4 @@ public interface UserRepository extends BaseRepository<User> {
         user.setEmail(user.getEmail().toLowerCase());
         return save(user);
     }
-
-    @Query("SELECT u FROM User u JOIN FETCH u.votes v JOIN FETCH v.restaurant WHERE u.id=:id")
-    Optional<User> getWithVotes(int id);
 }

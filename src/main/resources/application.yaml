@@ -13,10 +13,10 @@ spring:
         default_batch_fetch_size: 20
         jdbc.batch_size: 20
   datasource:
-      url: jdbc:h2:mem:restaurant_voting
+    url: jdbc:h2:mem:restaurant_voting
     # tcp jdbc:h2:tcp://localhost:9092/mem:restaurant_voting
-      username: sa
-      password:
+    username: sa
+    password:
 
   jackson.visibility:
     field: any
@@ -25,16 +25,19 @@ spring:
     is-getter: none
 
   cache:
-    cache-names: restaurants
-    caffeine.spec: maximumSize=10,expireAfterAccess=60s
+    cache-names: restaurants, restaurant, rating
+    caffeine.spec: maximumSize=10, expireAfterWrite=5s
   h2:
     console:
       enabled: true
 
 logging:
   level:
+    org.springframework:
+      orm.jpa: DEBUG
+      transaction: DEBUG
     root: WARN
-    ru.restaurant_voting: DEBUG
+    com.github.dimafour: DEBUG
 
 server.servlet:
   encoding:

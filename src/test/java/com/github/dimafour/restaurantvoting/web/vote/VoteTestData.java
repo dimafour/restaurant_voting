@@ -2,7 +2,6 @@ package com.github.dimafour.restaurantvoting.web.vote;
 
 import com.github.dimafour.restaurantvoting.model.Vote;
 import com.github.dimafour.restaurantvoting.to.RateLineTo;
-import com.github.dimafour.restaurantvoting.web.restaurant.RestaurantTestData;
 import com.github.dimafour.restaurantvoting.web.MatcherFactory;
 
 import java.time.LocalDate;

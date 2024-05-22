@@ -24,11 +24,6 @@ public class Restaurant extends NamedEntity implements HasId {
     @JsonIgnore
     private List<Meal> menu;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "restaurant")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
-    private List<Vote> votes;
-
     public Restaurant(Integer id, String name) {
         super(id, name);
     }

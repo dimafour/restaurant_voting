@@ -1,5 +1,6 @@
 package com.github.dimafour.restaurantvoting.web.restaurant;
 
+import com.github.dimafour.restaurantvoting.error.NotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -11,8 +12,7 @@ import com.github.dimafour.restaurantvoting.repository.RestaurantRepository;
 import com.github.dimafour.restaurantvoting.util.JsonUtil;
 import com.github.dimafour.restaurantvoting.web.AbstractControllerTest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static com.github.dimafour.restaurantvoting.web.restaurant.AdminRestaurantController.URL_ADMIN_RESTAURANTS;
@@ -70,7 +70,7 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
         int id = created.id();
         restaurant5.setId(id);
         RESTAURANT_MATCHER.assertMatch(created, restaurant5);
-        RESTAURANT_MATCHER.assertMatch(restaurantRepository.get(id).orElseThrow(), restaurant5);
+        RESTAURANT_MATCHER.assertMatch(restaurantRepository.getExisted(id), restaurant5);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
                 .content(JsonUtil.writeValue(getUpdated())))
                 .andExpect(status().isNoContent());
         Restaurant updated = getUpdated();
-        assertEquals(restaurantRepository.get(restaurantId).orElseThrow().getName(), updated.getName());
+        assertEquals(restaurantRepository.getExisted(restaurantId).getName(), updated.getName());
     }
 
     @Test
@@ -100,6 +100,6 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
         int restaurantId = restaurant2.id();
         perform(MockMvcRequestBuilders.delete(URL_ADMIN_RESTAURANTS + "/" + restaurantId))
                 .andExpect(status().isNoContent());
-        assertFalse(restaurantRepository.get(restaurantId).isPresent());
+        assertThrows(NotFoundException.class, () -> restaurantRepository.getExisted(restaurantId));
     }
 }

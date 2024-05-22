@@ -1,5 +1,6 @@
 package com.github.dimafour.restaurantvoting.web.vote;
 
+import com.github.dimafour.restaurantvoting.service.VoteService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -10,6 +11,7 @@ import com.github.dimafour.restaurantvoting.web.AbstractControllerTest;
 import com.github.dimafour.restaurantvoting.repository.VoteRepository;
 
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Optional;
 
@@ -18,11 +20,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static com.github.dimafour.restaurantvoting.web.restaurant.RestaurantTestData.restaurant1;
 import static com.github.dimafour.restaurantvoting.web.user.UserTestData.*;
-import static com.github.dimafour.restaurantvoting.web.vote.VoteController.TOO_LATE;
 import static com.github.dimafour.restaurantvoting.web.vote.VoteController.URL_USER_VOTES;
 import static com.github.dimafour.restaurantvoting.web.vote.VoteTestData.*;
 
 public class VoteControllerTest extends AbstractControllerTest {
+    static final String TOO_LATE = "It's too late to change your vote";
 
     @Autowired
     private VoteRepository voteRepository;
@@ -60,9 +62,10 @@ public class VoteControllerTest extends AbstractControllerTest {
     void create() throws Exception {
         int restaurantId = restaurant1.id();
         perform(MockMvcRequestBuilders.post(URL_USER_VOTES)
-                .param("restaurantId", String.valueOf(restaurantId)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(String.valueOf(restaurantId)))
                 .andExpect(jsonPath("$.id").value(restaurantId));
-        Optional<Integer> voteFromRep = voteRepository.getTodayVote(user2.id());
+        Optional<Integer> voteFromRep = voteRepository.getVoteByDate(user2.id(), LocalDate.now());
         assertTrue(voteFromRep.isPresent());
         assertEquals(voteFromRep.get(), restaurantId);
     }
@@ -73,9 +76,10 @@ public class VoteControllerTest extends AbstractControllerTest {
         changeTime(LocalTime.MAX);
         int restaurantId = restaurant1.id();
         perform(MockMvcRequestBuilders.patch(URL_USER_VOTES)
-                .param("restaurantId", String.valueOf(restaurantId)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(String.valueOf(restaurantId)))
                 .andExpect(status().isNoContent());
-        Optional<Integer> voteFromRep = voteRepository.getTodayVote(user1.id());
+        Optional<Integer> voteFromRep = voteRepository.getVoteByDate(user1.id(), LocalDate.now());
         assertTrue(voteFromRep.isPresent());
         assertEquals(voteFromRep.get(), restaurantId);
     }
@@ -86,17 +90,18 @@ public class VoteControllerTest extends AbstractControllerTest {
         changeTime(LocalTime.MIN);
         int restaurantId = restaurant1.id();
         MvcResult result = perform(MockMvcRequestBuilders.patch(URL_USER_VOTES)
-                .param("restaurantId", String.valueOf(restaurantId)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(String.valueOf(restaurantId)))
                 .andExpect(status().isConflict())
                 .andReturn();
         assertTrue(result.getResponse().getContentAsString().contains(TOO_LATE));
-        Optional<Integer> voteFromRep = voteRepository.getTodayVote(user1.id());
+        Optional<Integer> voteFromRep = voteRepository.getVoteByDate(user1.id(), LocalDate.now());
         assertTrue(voteFromRep.isPresent());
         assertEquals(voteFromRep.get(), voteUser1R3.getRestaurant().id());
     }
 
     private static void changeTime(LocalTime time) throws NoSuchFieldException, IllegalAccessException {
-        Field field = VoteController.class.getDeclaredField("deadline");
+        Field field = VoteService.class.getDeclaredField("deadline");
         field.setAccessible(true);
         field.set(null, time);
     }

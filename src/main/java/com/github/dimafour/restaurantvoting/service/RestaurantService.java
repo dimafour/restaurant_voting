@@ -8,24 +8,25 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
-
-import static com.github.dimafour.restaurantvoting.util.ValidationUtil.*;
 
 @Service
 @Slf4j
+@Transactional(readOnly = true)
 @AllArgsConstructor
-@Transactional
-@Cacheable("restaurants")
 public class RestaurantService {
-    private final RestaurantRepository restaurantRepository;
+    private RestaurantRepository restaurantRepository;
 
+    @Cacheable("restaurants")
     public List<Restaurant> getTodayList() {
-        log.info("get from database");
-        return restaurantRepository.getTodayList();
+        log.info("get today's restaurant list with menu from database");
+        return restaurantRepository.getListByDate(LocalDate.now());
     }
 
+    @Cacheable(value = "restaurant", key = "#id")
     public Restaurant getRestaurant(int id) {
-        return checkContains(getTodayList(), id);
+        log.info("get restaurant from database");
+        return restaurantRepository.getExisted(id);
     }
 }
