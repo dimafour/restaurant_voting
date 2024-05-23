@@ -56,7 +56,7 @@ public class AdminMealControllerTest extends AbstractControllerTest {
         perform(MockMvcRequestBuilders.put(URL + restaurantId + "/meals")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(getTosList(notValidMenuR2))))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isUnprocessableEntity());
 
         MEAL_MATCHER.assertMatch(mealRepository.getMenuByIdAndDate(restaurantId, LocalDate.now()), restaurant2.getMenu());
     }

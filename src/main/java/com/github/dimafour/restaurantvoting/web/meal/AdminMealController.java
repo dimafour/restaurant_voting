@@ -1,6 +1,5 @@
 package com.github.dimafour.restaurantvoting.web.meal;
 
-import com.github.dimafour.restaurantvoting.ValidList;
 import com.github.dimafour.restaurantvoting.repository.MealRepository;
 import com.github.dimafour.restaurantvoting.service.MealService;
 import com.github.dimafour.restaurantvoting.to.MealTo;
@@ -14,6 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.github.dimafour.restaurantvoting.model.Meal;
@@ -28,6 +28,7 @@ import static com.github.dimafour.restaurantvoting.util.ValidationUtil.*;
 @Slf4j
 @RestController
 @AllArgsConstructor
+@Validated
 @RequestMapping(value = AdminMealController.URL_ADMIN_MEAL, produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Admin Meal controller", description = "Allows to manage every single meal & change the whole menu for today")
 public class AdminMealController {
@@ -50,7 +51,7 @@ public class AdminMealController {
     @CacheEvict(value = "restaurants", allEntries = true)
     @Operation(summary = "Change menu for Restaurant by ID for today, or on the specific date",
             description = "! Delete existed menu on this date & save new !")
-    public List<MealTo> setMenu(@PathVariable int restaurantId, @Valid @RequestBody ValidList<MealTo> menuTo,
+    public List<MealTo> setMenu(@PathVariable int restaurantId, @Valid @RequestBody List<@Valid MealTo> menuTo,
                                 @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         LocalDate notNullDate = date == null ? LocalDate.now() : date;
         log.info("create menu {} in restaurant id={} on {}", menuTo, restaurantId, notNullDate);

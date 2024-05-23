@@ -31,6 +31,7 @@ public class VoteService {
 
     public Vote save(int userId, int restaurantId) {
         if (voteRepository.getVoteByDate(userId, LocalDate.now()).isPresent()) {
+            log.info("can not save user's id={} vote because it already exists", userId);
             throw new DataConflictException(ALREADY_VOTED);
         }
         Vote vote = new Vote();
@@ -46,6 +47,7 @@ public class VoteService {
             throw new DataConflictException(TOO_LATE);
         }
         if (voteRepository.getVoteByDate(userId, LocalDate.now()).isEmpty()) {
+            log.info("can not update user's id={} vote because it does not exist", userId);
             throw new NotFoundException(NOTHING_TO_UPDATE);
         }
         voteRepository.updateByDate(userId, restaurantId, LocalDate.now());

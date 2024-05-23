@@ -1,6 +1,6 @@
 package com.github.dimafour.restaurantvoting.repository;
 
-import com.github.dimafour.restaurantvoting.to.RateLineTo;
+import com.github.dimafour.restaurantvoting.to.RestaurantRatingTo;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +24,8 @@ public interface VoteRepository extends BaseRepository<Vote> {
     @Query("UPDATE Vote v SET v.restaurant.id=:restaurantId WHERE v.user.id=:userId AND v.date=:date")
     void updateByDate(int userId, int restaurantId, LocalDate date);
 
-    @Query("SELECT new com.github.dimafour.restaurantvoting.to.RateLineTo(v.restaurant.id, " +
+    @Query("SELECT new com.github.dimafour.restaurantvoting.to.RestaurantRatingTo(v.restaurant.id, v.restaurant.name," +
            "COUNT (v.restaurant.id)) FROM Vote v GROUP BY v.restaurant.id " +
            "HAVING v.date=current_date ORDER BY COUNT (v.restaurant.id) DESC")
-    List<RateLineTo> getRating();
+    List<RestaurantRatingTo> getRating();
 }

@@ -17,4 +17,9 @@ public class VoteTo extends BaseTo {
         super(restaurantId);
         this.date = date;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + '[' + date + ']';
+    }
 }

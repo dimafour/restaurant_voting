@@ -1,7 +1,7 @@
 package com.github.dimafour.restaurantvoting.web.restaurant;
 
 import com.github.dimafour.restaurantvoting.model.Restaurant;
-import com.github.dimafour.restaurantvoting.to.RestaurantTo;
+import com.github.dimafour.restaurantvoting.to.RestaurantWithMenuTo;
 import com.github.dimafour.restaurantvoting.web.MatcherFactory;
 
 import java.util.List;
@@ -10,7 +10,7 @@ import static com.github.dimafour.restaurantvoting.web.meal.MealTestData.*;
 
 public class RestaurantTestData {
 
-    public static final MatcherFactory.Matcher<RestaurantTo> RESTAURANT_TO_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(RestaurantTo.class, "meal.restaurant");
+    public static final MatcherFactory.Matcher<RestaurantWithMenuTo> RESTAURANT_TO_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(RestaurantWithMenuTo.class, "meal.restaurant");
     public static final MatcherFactory.Matcher<Restaurant> RESTAURANT_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Restaurant.class, "menu");
 
     public static final Restaurant restaurant1 = new Restaurant(1, "Tasty and that-s it");

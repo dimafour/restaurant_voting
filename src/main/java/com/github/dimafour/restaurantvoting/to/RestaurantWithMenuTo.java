@@ -6,11 +6,11 @@ import java.util.List;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
-public class RestaurantTo extends NamedTo {
+public class RestaurantWithMenuTo extends NamedTo {
 
     List<MealTo> menu;
 
-    public RestaurantTo(Integer id, String name, List<MealTo> menu) {
+    public RestaurantWithMenuTo(Integer id, String name, List<MealTo> menu) {
         super(id, name);
         this.menu = menu;
     }

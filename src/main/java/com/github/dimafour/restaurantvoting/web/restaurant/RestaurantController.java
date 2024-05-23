@@ -1,7 +1,7 @@
 package com.github.dimafour.restaurantvoting.web.restaurant;
 
 import com.github.dimafour.restaurantvoting.service.RestaurantService;
-import com.github.dimafour.restaurantvoting.to.RestaurantTo;
+import com.github.dimafour.restaurantvoting.to.RestaurantWithMenuTo;
 import com.github.dimafour.restaurantvoting.util.RestaurantUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,7 +26,7 @@ public class RestaurantController {
 
     @GetMapping
     @Operation(summary = "Get today's restaurant list with menu")
-    public List<RestaurantTo> getAll() {
+    public List<RestaurantWithMenuTo> getAll() {
         log.info("get today's restaurants list with menu");
         return RestaurantUtil.getTosList(restaurantService.getTodayList());
     }

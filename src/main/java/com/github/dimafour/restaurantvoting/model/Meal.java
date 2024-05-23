@@ -1,6 +1,6 @@
 package com.github.dimafour.restaurantvoting.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -11,11 +11,9 @@ import org.hibernate.validator.constraints.Range;
 
 import java.time.LocalDate;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.*;
-
 @Entity
 @Table(name = "meal", uniqueConstraints = {@UniqueConstraint(
-        columnNames = {"meal_date", "name"}, name = "meal_unique_date_name_idx")})
+        columnNames = {"meal_date", "restaurant_id", "name"}, name = "meal_unique_date_restaurant_id_name_idx")})
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,7 +30,7 @@ public class Meal extends NamedEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", nullable = false)
-    @JsonInclude(value = NON_EMPTY, content = NON_NULL)
+    @JsonIgnore
     private Restaurant restaurant;
 
     public Meal(Integer id, String name, int price, LocalDate date, Restaurant restaurant) {

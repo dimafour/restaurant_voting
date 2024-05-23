@@ -3,7 +3,6 @@ package com.github.dimafour.restaurantvoting.service;
 import com.github.dimafour.restaurantvoting.model.Restaurant;
 import com.github.dimafour.restaurantvoting.repository.MealRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.github.dimafour.restaurantvoting.model.Meal;
@@ -14,7 +13,6 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 @Transactional
-@CacheEvict({"restaurants", "restaurant"})
 public class MealService {
     private final MealRepository mealRepository;
     private final RestaurantService restaurantService;
@@ -26,6 +24,7 @@ public class MealService {
 
     public void update(int restaurantId, Meal meal) {
         mealRepository.getBelonged(meal.id(), restaurantId);
+        meal.setRestaurant(restaurantService.getRestaurant(restaurantId));
         mealRepository.save(meal);
     }
 

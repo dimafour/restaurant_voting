@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import com.github.dimafour.restaurantvoting.repository.VoteRepository;
-import com.github.dimafour.restaurantvoting.to.RateLineTo;
+import com.github.dimafour.restaurantvoting.to.RestaurantRatingTo;
 import com.github.dimafour.restaurantvoting.to.VoteTo;
 import com.github.dimafour.restaurantvoting.web.AuthUser;
 
@@ -34,7 +34,7 @@ public class VoteController {
     private final VoteRepository voteRepository;
 
     @GetMapping
-    @Operation(summary = "Get your one of yours the previous votes (default - today's)")
+    @Operation(summary = "Get one of yours previous votes (default - today's)")
     public ResponseEntity<VoteTo> get(@AuthenticationPrincipal AuthUser authUser,
                                       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         int userId = authUser.id();
@@ -78,7 +78,7 @@ public class VoteController {
     @GetMapping("/rating")
     @Cacheable("rating")
     @Operation(summary = "Get today restaurants rating list with votes number")
-    public List<RateLineTo> getRating() {
+    public List<RestaurantRatingTo> getRating() {
         log.info("get restaurant rating for now");
         return voteRepository.getRating();
     }

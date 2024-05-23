@@ -4,11 +4,11 @@ import lombok.*;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
-public class RateLineTo extends BaseTo {
+public class RestaurantRatingTo extends NamedTo {
     long votesNumber;
 
-    public RateLineTo(int restaurantId, long votesNumber) {
-        super(restaurantId);
+    public RestaurantRatingTo(int restaurantId, String restaurantName, long votesNumber) {
+        super(restaurantId, restaurantName);
         this.votesNumber = votesNumber;
     }
     @Override
